@@ -23,7 +23,7 @@ export class TFinishedComponent {
     ELEMENT_DATA : any[] =[] ;
     status="FINISHED";
     doctorID ="60c72b2f9b1e8a1f10f1e8a1";
-    displayedColumns: string[] = ['appointmentDate','time', 'duration', 'status', 'type' , 'action'];
+    displayedColumns: string[] = ['patient','appointmentDate','time', 'duration', 'status', 'type' , 'action'];
     dataSource = new MatTableDataSource<any>(this.ELEMENT_DATA);
     @ViewChild(MatPaginator) paginator: MatPaginator;
  
