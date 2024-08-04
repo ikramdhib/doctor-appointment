@@ -20,6 +20,8 @@ import { RegisterComponent } from './Auth/register/register.component';
 import { authGuard } from './Auth/auth.guard';
 import { UsersComponent } from './Users/users/users.component';
 import { UiElementsComponent} from './ui-elements/ui-elements.component';
+import {DoctorComponent} from './doctor/doctor.component';
+import {AppointmentsComponent} from './doctor/appointments/appointments.component'
 
 export const routes: Routes = [
     {path: '', component: LandingPageComponent},
@@ -40,6 +42,14 @@ export const routes: Routes = [
 
   //add : 
   {path :'ui-element', component:UiElementsComponent},
+
+//doctor routes
+   {path:'doctor' , component:DoctorComponent,
+    children:[
+        {path:'appointments',component:AppointmentsComponent}
+    ]
+   },
+
 
 
    

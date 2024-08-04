@@ -10,6 +10,7 @@ import { TFinishedComponent } from './t-finished/t-finished.component';
 import { TPassedComponent } from './t-passed/t-passed.component';
 import { TFailedComponent } from './t-failed/t-failed.component';
 
+
 @Component({
     selector: 'app-t-all-courses',
     standalone: true,

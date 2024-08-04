@@ -6,207 +6,95 @@ import { RouterLink } from '@angular/router';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-
+import { DoctorServesService } from '../../../doctorServes/doctor-serves.service';
+import { ChangeDetectorRef } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { NgIf } from '@angular/common';
+import {DialogComponent} from '../../../dialog/dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 @Component({
     selector: 'app-t-all',
     standalone: true,
-    imports: [MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, MatProgressBarModule],
+    imports: [MatSnackBarModule,NgIf,CommonModule,DatePipe,MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, MatProgressBarModule],
     templateUrl: './t-all.component.html',
     styleUrl: './t-all.component.scss'
 })
 export class TAllComponent {
-
-    displayedColumns: string[] = ['course', 'result', 'instructor', 'students', 'lessons', 'startDate', 'endDate', 'action'];
-    dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
-
+    ELEMENT_DATA : any[] =[] ;
+    doctorID ="60c72b2f9b1e8a1f10f1e8a1";
+    displayedColumns: string[] = ['patient','appointmentDate','time', 'duration', 'status', 'type' , 'action'];
+    dataSource = new MatTableDataSource<any>(this.ELEMENT_DATA);
     @ViewChild(MatPaginator) paginator: MatPaginator;
+ 
+    constructor(private DoctorServes: DoctorServesService, private cdr: ChangeDetectorRef ,  public dialog: MatDialog , private snackBar: MatSnackBar) {}
+    ngOnInit() {
+        this.LoadAppointment(this.doctorID);
+    }
 
     ngAfterViewInit() {
         this.dataSource.paginator = this.paginator;
     }
 
-}
-
-export interface PeriodicElement {
-    course: any;
-    instructor: string;
-    result: number;
-    students: number;
-    lessons: number;
-    startDate: string;
-    endDate: string;
-    action: any;
-}
-
-const ELEMENT_DATA: PeriodicElement[] = [
-    {
-        course: {
-            img: 'assets/images/courses/course1.jpg',
-            title: 'Programming Language',
-            hours: '08:56:00'
-        },
-        result: 80,
-        instructor: 'Olivia Bennett',
-        students: 152,
-        lessons: 44,
-        startDate: '2023-10-11',
-        endDate: '2024-03-10',
-        action: {
-            edit: 'ri-edit-line',
-            delete : 'ri-delete-bin-line'
-        }
-    },
-    {
-        course: {
-            img: 'assets/images/courses/course2.jpg',
-            title: 'Finance & Accounting',
-            hours: '12:30:15'
-        },
-        result: 40,
-        instructor: 'Liam Sullivan',
-        students: 241,
-        lessons: 58,
-        startDate: '2023-11-20',
-        endDate: '2024-02-21',
-        action: {
-            edit: 'ri-edit-line',
-            delete : 'ri-delete-bin-line'
-        }
-    },
-    {
-        course: {
-            img: 'assets/images/courses/course3.jpg',
-            title: 'IT Certifications',
-            hours: '06:50:10'
-        },
-        result: 65,
-        instructor: 'Emma Reynolds',
-        students: 350,
-        lessons: 120,
-        startDate: '2023-11-25',
-        endDate: '2024-01-29',
-        action: {
-            edit: 'ri-edit-line',
-            delete : 'ri-delete-bin-line'
-        }
-    },
-    {
-        course: {
-            img: 'assets/images/courses/course4.jpg',
-            title: 'Visual Arts & Science',
-            hours: '07:56:15'
-        },
-        result: 50,
-        instructor: 'Noah Wilson',
-        students: 68,
-        lessons: 120,
-        startDate: '2023-08-10',
-        endDate: '2024-04-26',
-        action: {
-            edit: 'ri-edit-line',
-            delete : 'ri-delete-bin-line'
-        }
-    },
-    {
-        course: {
-            img: 'assets/images/courses/course5.jpg',
-            title: 'Express.js & MongoDB',
-            hours: '08:56:00'
-        },
-        result: 100,
-        instructor: 'Olivia Bennett',
-        students: 152,
-        lessons: 44,
-        startDate: '2023-12-19',
-        endDate: '2024-04-20',
-        action: {
-            edit: 'ri-edit-line',
-            delete : 'ri-delete-bin-line'
-        }
-    },
-    {
-        course: {
-            img: 'assets/images/courses/course5.jpg',
-            title: 'Express.js & MongoDB',
-            hours: '08:56:00'
-        },
-        result: 100,
-        instructor: 'Olivia Bennett',
-        students: 152,
-        lessons: 44,
-        startDate: '2023-12-19',
-        endDate: '2024-04-20',
-        action: {
-            edit: 'ri-edit-line',
-            delete : 'ri-delete-bin-line'
-        }
-    },
-    {
-        course: {
-            img: 'assets/images/courses/course3.jpg',
-            title: 'IT Certifications',
-            hours: '06:50:10'
-        },
-        result: 65,
-        instructor: 'Emma Reynolds',
-        students: 350,
-        lessons: 120,
-        startDate: '2023-11-25',
-        endDate: '2024-01-29',
-        action: {
-            edit: 'ri-edit-line',
-            delete : 'ri-delete-bin-line'
-        }
-    },
-    {
-        course: {
-            img: 'assets/images/courses/course4.jpg',
-            title: 'Visual Arts & Science',
-            hours: '07:56:15'
-        },
-        result: 50,
-        instructor: 'Noah Wilson',
-        students: 68,
-        lessons: 120,
-        startDate: '2023-08-10',
-        endDate: '2024-04-26',
-        action: {
-            edit: 'ri-edit-line',
-            delete : 'ri-delete-bin-line'
-        }
-    },
-    {
-        course: {
-            img: 'assets/images/courses/course2.jpg',
-            title: 'Finance & Accounting',
-            hours: '12:30:15'
-        },
-        result: 40,
-        instructor: 'Liam Sullivan',
-        students: 241,
-        lessons: 58,
-        startDate: '2023-11-20',
-        endDate: '2024-02-21',
-        action: {
-            edit: 'ri-edit-line',
-            delete : 'ri-delete-bin-line'
-        }
-    },
-    {
-        course: {
-            img: 'assets/images/courses/course1.jpg',
-            title: 'Programming Language',
-            hours: '08:56:00'
-        },
-        result: 80,
-        instructor: 'Olivia Bennett',
-        students: 152,
-        lessons: 44,
-        startDate: '2023-10-11',
-        endDate: '2024-03-10',
-        action: {
-            edit: 'ri-edit-line',
-            delete : 'ri-delete-bin-line'
-        }
+    LoadAppointment(doctorID: string) {
+        this.DoctorServes.getAllAppointments(doctorID).subscribe({
+            next: (res: any) => {
+                this.ELEMENT_DATA = res;
+                this.dataSource.data = this.ELEMENT_DATA;
+                console.log(res);
+            },
+            complete: () => {
+                console.log("complete");
+                this.cdr.detectChanges();
+            },
+            error: (err) => {
+                console.error('Erreur:', err);
+            }
+        });
     }
-];
+
+    convertToUTCTime(dateString: string): string {
+        const date = new Date(dateString);
+        return date.toISOString().substring(11, 16); // Extract time in HH:mm format
+    }
+
+    //delet pointment
+    deleteAppointmentwithID(appointmentID:any){
+        console.log(appointmentID,"zzzzzzzzzzzzzzz")
+        this.DoctorServes.deleteAppointmentWithID(appointmentID).subscribe({
+            next: (res: any) => {
+                this.LoadAppointment(this.doctorID);
+            },
+            complete: () => {
+                this.openSnackBar('Suppression avec succès', 'Fermer', 'success-snackbar');
+                this.cdr.detectChanges();
+            },
+            error: (err) => {
+                this.openSnackBar('Erreur lors de la suppression', 'Fermer', 'error-snackbar');
+                console.error('Erreur:', err);
+            }
+        });
+    }
+
+    deleteAppointment(appointmentID: any): void {
+        const dialogRef = this.dialog.open(DialogComponent);
+    
+        dialogRef.afterClosed().subscribe(result => {
+          if (result === true) {
+            this.deleteAppointmentwithID(appointmentID);
+          }
+        });
+      }
+
+//popup 
+      openSnackBar(message: string, action: string, panelClass: string) {
+  console.log('Panel class:', panelClass); // Ajoutez ce log pour vérifier
+  this.snackBar.open(message, action, {
+    duration: 3000,
+    horizontalPosition: 'right',
+    verticalPosition: 'top',
+    panelClass: panelClass // Assurez-vous que la classe est appliquée
+  });
+}
+}
+

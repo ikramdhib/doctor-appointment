@@ -1,4 +1,4 @@
-.in-progress-courses-table {
+.all-courses-table {
     .mat-mdc-table {
         width: 100%;
         overflow: hidden;
@@ -98,7 +98,7 @@
 /* Max width 767px */
 @media only screen and (max-width : 767px) {
 
-    .in-progress-courses-table {
+    .all-courses-table {
         .mat-mdc-table {
             .mat-mdc-header-row {
                 font-size: 13px;
@@ -139,7 +139,7 @@
 /* Min width 768px to Max width 991px */
 @media only screen and (min-width : 768px) and (max-width : 991px) {
 
-    .in-progress-courses-table {
+    .all-courses-table {
         .mat-mdc-table {
             .mat-mdc-cell {
                 padding: 15px;
@@ -164,6 +164,40 @@
     }
 
 }
+
+.badge {
+    display: inline-block;
+    padding: 0.25em 0.4em;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.375rem;
+}
+
+.badge-unplanned {
+    color: #fff;
+    background-color: #ffeb3b; /* Yellow */
+}
+
+.badge-planified {
+    color: #fff;
+    background-color: #2196f3; /* Blue */
+}
+
+.badge-finished {
+    color: #fff;
+    background-color: #4caf50; /* Green */
+}
+
+.badge-cancled {
+    color: #fff;
+    background-color: #f44336; /* Red */
+}
+
+
 
 /* Min width 992px to Max width 1199px */
 @media only screen and (min-width : 992px) and (max-width : 1199px) {}
