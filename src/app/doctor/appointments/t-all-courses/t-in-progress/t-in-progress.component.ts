@@ -12,10 +12,11 @@ import { NgIf } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DialogComponent } from '../../../dialog/dialog.component';
+import { MatTooltipModule } from '@angular/material/tooltip'; // Import MatTooltipModule
 @Component({
     selector: 'app-t-in-progress',
     standalone: true,
-    imports: [NgIf,CommonModule, DatePipe,MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, MatProgressBarModule],
+    imports: [MatTooltipModule,NgIf,CommonModule, DatePipe,MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, MatProgressBarModule],
     templateUrl: './t-in-progress.component.html',
     styleUrl: './t-in-progress.component.scss'
 })
@@ -23,7 +24,7 @@ export class TInProgressComponent {
 
     ELEMENT_DATA : any[] =[] ;
     status="UNPLANNED";
-    doctorID ="60c72b2f9b1e8a1f10f1e8a1";
+    doctorID ="66b0bc6954a41110abb44cbc";
     displayedColumns: string[] = ['patient','appointmentDate','time', 'duration', 'status', 'type' , 'action'];
     dataSource = new MatTableDataSource<any>(this.ELEMENT_DATA);
     @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -84,6 +85,23 @@ export class TInProgressComponent {
           if (result === true) {
             this.deleteAppointmentwithID(appointmentID);
           }
+        });
+      }
+
+      //confirm appointment 
+      updateAppointmentStatus(appointmentID:any , appointmentStatus:any){
+        this.DoctorServes.updateAppointmentStatus(appointmentID,appointmentStatus).subscribe({
+            next: (res: any) => {
+                this.LoadAppointment(this.doctorID , this.status);
+            },
+            complete: () => {
+                this.openSnackBar('Changed with success', 'close', 'success-snackbar');
+                this.cdr.detectChanges();
+            },
+            error: (err) => {
+                this.openSnackBar('Erreur when updating', 'close', 'error-snackbar');
+                console.error('Erreur:', err);
+            }
         });
       }
 

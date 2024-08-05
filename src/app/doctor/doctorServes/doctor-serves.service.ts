@@ -24,5 +24,8 @@ export class DoctorServesService {
   deleteAppointmentWithID(appointmentID:any ){
    return  this.http.delete(`${this.API_RL}appointment/deleteAppointment/${appointmentID}`,this.httpOptions);
   }
+  updateAppointmentStatus(appointmentID:any , appointmentStatus:any){
+    return this.http.put(`${this.API_RL}appointment/changeAppointmentStatus/${appointmentID}`,{appointmentStatus : appointmentStatus});
+  }
 
 }

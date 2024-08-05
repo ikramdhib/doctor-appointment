@@ -23,7 +23,7 @@ export class TFailedComponent {
 
     ELEMENT_DATA : any[] =[] ;
     status="CANCLED";
-    doctorID ="60c72b2f9b1e8a1f10f1e8a1";
+    doctorID ="66b0bc6954a41110abb44cbc";
     displayedColumns: string[] = ['patient','appointmentDate','time', 'duration', 'status', 'type' , 'action'];
     dataSource = new MatTableDataSource<any>(this.ELEMENT_DATA);
     @ViewChild(MatPaginator) paginator: MatPaginator;
