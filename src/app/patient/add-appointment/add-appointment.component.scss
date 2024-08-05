@@ -1,0 +1,54 @@
+/* Style pour le conteneur des options de type de rendez-vous */
+.appointment-type-selector {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 16px;
+  }
+  
+  /* Style pour chaque option de type de rendez-vous */
+  .appointment-type-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  
+  .appointment-type-option:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .appointment-type-option.selected {
+    border-color: #007bff; /* Bleu pour la sélection */
+  }
+  
+  /* Style pour les images dans les options */
+  .appointment-type-image {
+    width: 80px; /* Ajuster la taille de l'image */
+    height: auto;
+    margin-bottom: 8px;
+  }
+  
+  /* Style pour le texte sous les images */
+  .appointment-type-option p {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  /* Style pour les boutons de l'étape */
+  .step-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+  }
+  
+  /* Style pour le texte centré dans le dernier step */
+  .center-text {
+    text-align: center;
+  }
+  

@@ -23,6 +23,7 @@ import { UiElementsComponent} from './ui-elements/ui-elements.component';
 import {DoctorComponent} from './doctor/doctor.component';
 import {AppointmentsComponent} from './doctor/appointments/appointments.component'
 import { CalendrierComponent } from './doctor/calendrier/calendrier.component';
+import {PatientComponent} from './patient/patient.component';
 
 export const routes: Routes = [
     {path: '', component: LandingPageComponent},
@@ -52,6 +53,8 @@ export const routes: Routes = [
     ]
    },
 
+   //Patient routes 
+   {path:'patient', component:PatientComponent},
 
 
 

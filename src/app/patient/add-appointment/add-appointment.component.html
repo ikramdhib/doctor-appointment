@@ -1,0 +1,68 @@
+<!-- Test images to check if they load correctly -->
+
+<h2 mat-dialog-title>Book an Appointment</h2>
+<mat-dialog-content>
+  <mat-horizontal-stepper [linear]="true" #stepper>
+    <!-- Step 1 -->
+    <mat-step [stepControl]="typeFormGroup">
+        <form [formGroup]="typeFormGroup">
+          <ng-template matStepLabel>Type</ng-template>
+          <div class="appointment-type-selector">
+            <div 
+              class="appointment-type-option" 
+              (click)="selectAppointmentType('online')"
+              [class.selected]="typeFormGroup.get('type').value === 'online'"
+            >
+              <img src="assets/online.png" alt="Online Icon" class="appointment-type-image"/>
+              <p>Online</p>
+            </div>
+            <div 
+              class="appointment-type-option" 
+              (click)="selectAppointmentType('in-person')"
+              [class.selected]="typeFormGroup.get('type').value === 'in-person'"
+            >
+              <img src="assets/cabinet.jpg" alt="In Person Icon" class="appointment-type-image"/>
+              <p>In Person</p>
+            </div>
+          </div>
+          <div class="step-buttons">
+            <button mat-button matStepperNext [disabled]="!typeFormGroup.valid">Next</button>
+          </div>
+        </form>
+      </mat-step>
+    <!-- Step 2 -->
+    <mat-step [stepControl]="dateFormGroup">
+      <form [formGroup]="dateFormGroup">
+        <ng-template matStepLabel>Step 2: Select Date and Time</ng-template>
+        <mat-form-field>
+            <i-feather name="calendar"></i-feather>
+            <mat-label>Enter date</mat-label>
+            <input matInput [matDatepicker]="picker">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+        <div>
+          <button *ngFor="let time of availableTimes" mat-button (click)="selectTime(time)">
+            {{ time }}
+          </button>
+        </div>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext [disabled]="!dateFormGroup.valid">Next</button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step 3 -->
+    <mat-step>
+        <ng-template matStepLabel>Confirm</ng-template>
+        <p class="center-text">Type: {{ typeFormGroup.get('type').value }}</p>
+        <p class="center-text">Date: {{ dateFormGroup.get('date').value | date }}</p>
+        <p class="center-text">Time: {{ selectedTime }}</p>
+        <div class="step-buttons">
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button (click)="submit()">Submit</button>
+        </div>
+      </mat-step>
+  </mat-horizontal-stepper>
+</mat-dialog-content>
