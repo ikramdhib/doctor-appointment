@@ -1,11 +1,15 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AddAppointmentComponent } from './add-appointment/add-appointment.component';
+import { RouterOutlet } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { RouterLink } from '@angular/router';
+
 
 @Component({
   selector: 'app-patient',
   standalone: true,
-  imports: [],
+  imports: [RouterOutlet,MatCardModule,RouterLink],
   templateUrl: './patient.component.html',
   styleUrl: './patient.component.scss'
 })

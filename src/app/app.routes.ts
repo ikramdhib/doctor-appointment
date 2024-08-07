@@ -20,10 +20,13 @@ import { RegisterComponent } from './Auth/register/register.component';
 import { authGuard } from './Auth/auth.guard';
 import { UsersComponent } from './Users/users/users.component';
 import { UiElementsComponent} from './ui-elements/ui-elements.component';
+import {ChipsComponent} from './ui-elements/chips/chips.component';
+import {TableComponent} from './ui-elements/table/table.component';
 import {DoctorComponent} from './doctor/doctor.component';
 import {AppointmentsComponent} from './doctor/appointments/appointments.component'
 import { CalendrierComponent } from './doctor/calendrier/calendrier.component';
 import {PatientComponent} from './patient/patient.component';
+import{PatientAppointmentsComponent} from './patient/patient-appointments/patient-appointments.component';
 
 export const routes: Routes = [
     {path: '', component: LandingPageComponent},
@@ -43,7 +46,12 @@ export const routes: Routes = [
     },
 
   //add : 
-  {path :'ui-element', component:UiElementsComponent},
+  {path :'ui-element', component:UiElementsComponent,
+    children:[
+        {path:'tabels',component:TableComponent},
+        {path:'calender',component:CalendrierComponent}
+    ]
+  },
 
 //doctor routes
    {path:'doctor' , component:DoctorComponent,
@@ -54,10 +62,11 @@ export const routes: Routes = [
    },
 
    //Patient routes 
-   {path:'patient', component:PatientComponent},
-
-
-
+   {path:'patient', component:PatientComponent ,
+    children:[
+        {path:'appointments',component:PatientAppointmentsComponent},
+    ]
+   },
   
     {path: 'tables', component: TablesComponent},
 
