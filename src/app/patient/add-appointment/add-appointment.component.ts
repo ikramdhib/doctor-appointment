@@ -20,6 +20,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { FileUploadModule } from '@iplab/ngx-file-upload';
 import { MatSelectModule } from '@angular/material/select';
 import { FeathericonsModule } from '../../apps/icons/feathericons/feathericons.module';
+import { PatientService } from '../serves/patient.service';
 
 @Component({
   selector: 'app-add-appointment',
@@ -31,48 +32,184 @@ import { FeathericonsModule } from '../../apps/icons/feathericons/feathericons.m
 })
 export class AddAppointmentComponent {
 
-
-
-  typeFormGroup: FormGroup;
-  dateFormGroup: FormGroup;
   minDate: Date;
-  availableTimes: string[] = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
-  selectedTime: string;
+  doctorId;
 
-  constructor(private _formBuilder: FormBuilder, private dialogRef: MatDialogRef<AddAppointmentComponent>) {
-    this.minDate = new Date();
+  dateAvailibilty:any[];
+  availableDates: Set<number> = new Set<number>();
+
+  onlineTimes: { [date: string]: number[] } = {};
+  inPersonTimes: { [date: string]: number[] } = {};
+
+  selectedDate: string | null = null;
+  selectedMode: 'ONLINE' | 'IN_PERSON' | null = null;
+  availableTimes: number[] = [];
+
+  firstFormGroup: FormGroup;
+  secondFormGroup: FormGroup;
+
+  dateSelected: boolean = false;
+  modeSelected: boolean = false;
+
+  timeSelected: boolean = false;
+  selectedTime: number | null = null;
+  patientId;
+
+  constructor(private _formBuilder: FormBuilder,public dialogRef: MatDialogRef<AddAppointmentComponent> , public PatientServes : PatientService) {
+   
+    this.getAvailibilityOfDoctor("66b20b3baefd046b10d57ed6");
+    this.minDate = new Date(); // La date minimum est aujourd'hui
+    this.patientId='66afd28847bfaee53e8d6a56';
+    this.doctorId="66b20b3baefd046b10d57ed6";
   }
 
-  ngOnInit() {
-    this.typeFormGroup = this._formBuilder.group({
-      type: ['', Validators.required]
+  ngOnInit(): void {
+    this.firstFormGroup = this._formBuilder.group({
+      date: [null]
     });
-    this.dateFormGroup = this._formBuilder.group({
-      date: ['', Validators.required]
+    this.secondFormGroup = this._formBuilder.group({
+      mode: [null]
+    });
+
+    this.firstFormGroup.get('date')?.valueChanges.subscribe(date => {
+      this.selectedDate = date ? new Date(date).toISOString().split('T')[0] : null;
+      this.dateSelected = !!this.selectedDate;
+      if (this.dateSelected) {
+        this.updateAvailableTimes();
+      }
+    });
+
+    this.secondFormGroup.get('mode')?.valueChanges.subscribe(mode => {
+      this.selectedMode = mode;
+      this.modeSelected = !!this.selectedMode;
+      this.updateAvailableTimes();
     });
   }
 
-  selectTime(time: string) {
-    this.selectedTime = time;
-    this.dateFormGroup.get('time').setValue(time); // Ensure form validity
+  closeDialog(): void {
+    this.dialogRef.close();
   }
 
-  submit() {
-    if (this.typeFormGroup.valid && this.dateFormGroup.valid) {
-      const appointmentDetails = {
-        type: this.typeFormGroup.get('type').value,
-        date: this.dateFormGroup.get('date').value,
-        time: this.selectedTime
-      };
-      // Send the appointmentDetails to the server or process them as needed
-      console.log('Appointment Details:', appointmentDetails);
-      this.dialogRef.close(appointmentDetails);
+//filtrer les date pour l'afficher dans les datepicker
+  dateFilter = (date: Date | null): boolean => {
+    if (!date) {
+      return false;
+    }
+    const formattedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    return this.availableDates.has(formattedDate);
+  }
+
+//extrait les disponiblité
+  getAvailibilityOfDoctor(id:any){
+
+    this.PatientServes.getdoctorDetailsWithAvailibities(id).subscribe({
+      next: (res: any) => {
+
+        res.availabilities.forEach(avail => {
+          const date = new Date(avail.date);
+          
+          this.availableDates.add(new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime());
+
+             // Initialiser les tableaux d'heures pour chaque date
+          const dateString = date.toISOString().split('T')[0];
+          this.onlineTimes[dateString] = [];
+          this.inPersonTimes[dateString] = [];
+
+      // Extraire les heures disponibles pour chaque mode
+      avail.timeSlots.forEach(slot => {
+        if (slot.isAvailable) {
+          const startHour = parseInt(slot.startTime.split(':')[0], 10);
+          const endHour = parseInt(slot.endTime.split(':')[0], 10);
+          const timesArray = [];
+          
+          for (let hour = startHour; hour < endHour; hour++) {
+            timesArray.push(hour);
+          }
+
+          if (slot.mode === 'ONLINE') {
+            this.onlineTimes[dateString] = timesArray;
+          } else if (slot.mode === 'IN_PERSON') {
+            this.inPersonTimes[dateString] = timesArray;
+          }
+        }
+      });
+    });
+
+        console.log(this.availableDates);
+
+    },
+    complete: () => {
+        console.log("complete");
+    },
+    error: (err) => {
+        console.error('Erreur:', err);
+    }
+    })
+  }
+
+  onDateChange(event: any): void {
+    const date = event.value;
+    const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    this.selectedDate = utcDate.toISOString().split('T')[0];
+    console.log(this.selectedDate,"eeeeeeeeyyy")
+    this.updateAvailableTimes();
+  }
+
+  onModeChange(mode: 'ONLINE' | 'IN_PERSON'): void {
+    this.selectedMode = mode;
+    console.log(this.selectedMode,"eeeeeeeeyyy")
+    this.updateAvailableTimes();
+  }
+
+  updateAvailableTimes(): void {
+    if (this.selectedDate && this.selectedMode) {
+      if (this.selectedMode === 'ONLINE') {
+        this.availableTimes = this.onlineTimes[this.selectedDate] || [];
+      } else if (this.selectedMode === 'IN_PERSON') {
+        this.availableTimes = this.inPersonTimes[this.selectedDate] || [];
+      }
+      this.timeSelected = this.availableTimes.length > 0;
+    } else {
+      this.availableTimes = [];
+      this.timeSelected = false;
     }
   }
-  selectAppointmentType(type: string): void {
-    this.typeFormGroup.get('type').setValue(type);
+  selectTime(time: number): void {
+    this.selectedTime = time;
+    this.timeSelected = !!this.selectedTime;
+    console.log(this.selectedTime,"5555555555555")
+  }
+  isSelected(time: number): boolean {
+    return this.selectedTime === time;
   }
 
-  
+  isFormValid(): boolean {
+    return !!this.selectedDate && !!this.selectedMode && !!this.selectedTime;
+  }
+
+  confirm(): void {
+    console.log(this.isFormValid)
+    if (this.isFormValid()) {
+      const dateTime = this.selectedDate;
+      const hourAppointment = `${this.selectedTime}:00`;
+      const type = this.selectedMode;
+      const doctor = this.doctorId; // Remplacez par l'ID du médecin
+      const patient = this.patientId; // Remplacez par l'ID du patient
+
+      console.log(doctor,"55555555555555");
+      console.log(patient,"88888888888888");
+
+      this.PatientServes.createAppointment(dateTime, hourAppointment, type, doctor, patient).subscribe(
+        response => {
+          console.log('Appointment created successfully', response);
+          this.dialogRef.close();
+        },
+        error => {
+          console.error('Error creating appointment', error);
+        }
+      );
+    }
+  }
+
 
 }
