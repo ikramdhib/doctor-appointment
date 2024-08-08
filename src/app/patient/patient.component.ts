@@ -4,12 +4,14 @@ import { AddAppointmentComponent } from './add-appointment/add-appointment.compo
 import { RouterOutlet } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { RouterLink } from '@angular/router';
+import { TodayAppointmentComponent } from "./today-appointment/today-appointment.component";
+import {PatientAppointmentsComponent} from './patient-appointments/patient-appointments.component';
 
 
 @Component({
   selector: 'app-patient',
   standalone: true,
-  imports: [RouterOutlet,MatCardModule,RouterLink],
+  imports: [RouterOutlet, MatCardModule, RouterLink, TodayAppointmentComponent,PatientAppointmentsComponent],
   templateUrl: './patient.component.html',
   styleUrl: './patient.component.scss'
 })
