@@ -8,6 +8,8 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { NgIf } from '@angular/common';
 import { PatientService } from '../serves/patient.service';
 import { CommonModule, DatePipe } from '@angular/common';
+import {DetailsDoctorModelComponent} from './details-doctor-model/details-doctor-model.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-patient-appointments',
@@ -24,7 +26,7 @@ export class PatientAppointmentsComponent {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  constructor(private PatientServes: PatientService, private cdr: ChangeDetectorRef ) {}
+  constructor(public dialog: MatDialog ,private PatientServes: PatientService, private cdr: ChangeDetectorRef ) {}
 
   ngOnInit() {
     this.LoadAppointment(this.patientID);
@@ -56,6 +58,17 @@ convertToUTCTime(dateString: string): string {
   return date.toISOString().substring(11, 16); // Extract time in HH:mm format
 }
 
+openDoctorDetails(element: any): void {
+  this.dialog.open(DetailsDoctorModelComponent, {
+    width: '400px',
+    data: {
+      doctor: {
+        ...element.doctor,
+        profileImageUrl: 'assets/images/courses/course22.jpg' // ou l'URL de l'image du profil
+      }
+    }
+  });
+}
 
 }
 
