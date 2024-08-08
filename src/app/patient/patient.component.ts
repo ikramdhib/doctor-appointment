@@ -18,14 +18,26 @@ import {PatientAppointmentsComponent} from './patient-appointments/patient-appoi
 export class PatientComponent {
   constructor(public dialog: MatDialog) {}
 
-  openAppointmentDialog() {
+  openAppointmentDialog(appointment: any = null): void {
     const dialogRef = this.dialog.open(AddAppointmentComponent, {
-      width: '600px'
+      width: '600px',
+      data: appointment ? {
+        isUpdateMode: true,
+        appointmentId: appointment._id,
+        appointmentDate: appointment.dateAppointment,
+        appointmentMode: appointment.type,
+        appointmentTime: appointment.time
+      } : {
+        isUpdateMode: false,
+        appointmentDate: null,
+        appointmentMode: null,
+        appointmentTime: null
+      }
     });
-
+  
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log('Appointment created:', result);
+        console.log('Appointment processed:', result);
         // Handle the result (e.g., send it to the server)
       }
     });

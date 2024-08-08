@@ -11,6 +11,6 @@
     </div>
     <div class="button-container">
         <button class="btn join-button" *ngIf="appointment.type=='ONLINE'">Join</button>
-        <button class="btn reschedule-button">Reschedule</button>
+        <button class="btn reschedule-button" (click)="openAppointmentDialog(appointment)" >Reschedule</button>
     </div>
 </div>

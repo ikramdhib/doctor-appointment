@@ -9,7 +9,8 @@ import {
     NgApexchartsModule
 } from "ng-apexcharts";
 import { PatientService } from '../../serves/patient.service';
-
+import { MatDialog } from '@angular/material/dialog';
+import{AddAppointmentComponent} from '../../add-appointment/add-appointment.component';
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
   chart: ApexChart;
@@ -32,7 +33,7 @@ export class AppointmentCardComponent {
     patientID:any;
     appointment: any;
 
-    constructor(public PatientServes : PatientService) {
+    constructor(public dialog: MatDialog,public PatientServes : PatientService) {
     }
 
     ngOnInit(): void {
@@ -44,4 +45,30 @@ export class AppointmentCardComponent {
       });
 
     }
+
+    openAppointmentDialog(appointment: any = null): void {
+      let appointmentTime: string | null = null;
+  let appointmentDate: string | null = null;
+
+  if (appointment) {
+    const dateTime = new Date(appointment.dateAppointment);
+    // Formater la date et l'heure
+    appointmentDate = dateTime.toISOString().split('T')[0]; // 'YYYY-MM-DD'
+    appointmentTime = dateTime.toTimeString().split(' ')[0].substring(0, 5); // 'HH:MM'
+  }
+
+  const dialogRef = this.dialog.open(AddAppointmentComponent, {
+    width: '500px',
+    data: appointment ? {
+      isUpdateMode: true,
+      appointmentId: appointment._id,
+      appointmentDate: appointmentDate,
+      appointmentMode: appointment.type,
+      appointmentTime: appointmentTime
+    } : {
+      isUpdateMode: false
+    }
+  });
+
+}
 }

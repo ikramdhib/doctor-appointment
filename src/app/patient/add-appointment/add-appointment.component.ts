@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators ,ReactiveFormsModule} from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import * as moment from 'moment';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -21,6 +21,7 @@ import { FileUploadModule } from '@iplab/ngx-file-upload';
 import { MatSelectModule } from '@angular/material/select';
 import { FeathericonsModule } from '../../apps/icons/feathericons/feathericons.module';
 import { PatientService } from '../serves/patient.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-add-appointment',
@@ -33,7 +34,7 @@ import { PatientService } from '../serves/patient.service';
 export class AddAppointmentComponent {
 
   minDate: Date;
-  doctorId;
+  doctorId:any;
 
   dateAvailibilty:any[];
   availableDates: Set<number> = new Set<number>();
@@ -53,10 +54,24 @@ export class AddAppointmentComponent {
 
   timeSelected: boolean = false;
   selectedTime: number | null = null;
-  patientId;
+  patientId:any;
 
-  constructor(private _formBuilder: FormBuilder,public dialogRef: MatDialogRef<AddAppointmentComponent> , public PatientServes : PatientService) {
-   
+  isUpdateMode: boolean = false;
+  appointmentId: string | null = null;
+
+
+  constructor(private cdr: ChangeDetectorRef,@Inject(MAT_DIALOG_DATA) public data: any ,private _formBuilder: FormBuilder,public dialogRef: MatDialogRef<AddAppointmentComponent> , public PatientServes : PatientService , public toster : ToastrService) {
+    this.isUpdateMode = data.isUpdateMode;
+    this.appointmentId = data.appointmentId || null;
+    this.selectedDate = data.appointmentDate || null;
+    this.selectedMode = data.appointmentMode || null;
+    this.selectedTime = data.appointmentTime || null;
+
+    console.log( this.appointmentId,"00")
+    console.log( this.selectedDate,"00")
+    console.log( this.selectedMode,"00")
+    console.log( this.selectedTime,"00")
+
     this.getAvailibilityOfDoctor("66b20b3baefd046b10d57ed6");
     this.minDate = new Date(); // La date minimum est aujourd'hui
     this.patientId='66afd28847bfaee53e8d6a56';
@@ -64,6 +79,7 @@ export class AddAppointmentComponent {
   }
 
   ngOnInit(): void {
+    
     this.firstFormGroup = this._formBuilder.group({
       date: [null]
     });
@@ -84,7 +100,22 @@ export class AddAppointmentComponent {
       this.modeSelected = !!this.selectedMode;
       this.updateAvailableTimes();
     });
-  }
+    console.log(this.isUpdateMode,"eeeeeeeggggeeeeeeeeeeee")
+
+    if (this.isUpdateMode) {
+      const date = this.selectedDate ? new Date(this.selectedDate) : null;
+      this.firstFormGroup.patchValue({ date });
+      this.secondFormGroup.patchValue({ mode: this.selectedMode });
+  
+      // Assurez-vous que les heures disponibles sont mises à jour
+      this.updateAvailableTimes();
+  
+      // Sélectionner le temps si disponible
+      if (this.selectedTime !== null) {
+        this.availableTimes = this.availableTimes || [];
+      }
+    }
+}
 
   closeDialog(): void {
     this.dialogRef.close();
@@ -102,49 +133,46 @@ export class AddAppointmentComponent {
 //extrait les disponiblité
   getAvailibilityOfDoctor(id:any){
 
-    this.PatientServes.getdoctorDetailsWithAvailibities(id).subscribe({
-      next: (res: any) => {
+     this.PatientServes.getdoctorDetailsWithAvailibities(id).subscribe({
+    next: (res: any) => {
+      console.log('Doctor Availability Data:', res);
+      res.availabilities.forEach(avail => {
+        const date = new Date(avail.date);
+        this.availableDates.add(new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime());
 
-        res.availabilities.forEach(avail => {
-          const date = new Date(avail.date);
-          
-          this.availableDates.add(new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime());
+        // Initialiser les heures pour chaque date
+        const dateString = date.toISOString().split('T')[0];
+        this.onlineTimes[dateString] = [];
+        this.inPersonTimes[dateString] = [];
 
-             // Initialiser les tableaux d'heures pour chaque date
-          const dateString = date.toISOString().split('T')[0];
-          this.onlineTimes[dateString] = [];
-          this.inPersonTimes[dateString] = [];
+        avail.timeSlots.forEach(slot => {
+          if (slot.isAvailable) {
+            const startHour = parseInt(slot.startTime.split(':')[0], 10);
+            const endHour = parseInt(slot.endTime.split(':')[0], 10);
+            const timesArray = [];
 
-      // Extraire les heures disponibles pour chaque mode
-      avail.timeSlots.forEach(slot => {
-        if (slot.isAvailable) {
-          const startHour = parseInt(slot.startTime.split(':')[0], 10);
-          const endHour = parseInt(slot.endTime.split(':')[0], 10);
-          const timesArray = [];
-          
-          for (let hour = startHour; hour < endHour; hour++) {
-            timesArray.push(hour);
+            for (let hour = startHour; hour < endHour; hour++) {
+              timesArray.push(hour);
+            }
+
+            if (slot.mode === 'ONLINE') {
+              this.onlineTimes[dateString] = timesArray;
+            } else if (slot.mode === 'IN_PERSON') {
+              this.inPersonTimes[dateString] = timesArray;
+            }
           }
-
-          if (slot.mode === 'ONLINE') {
-            this.onlineTimes[dateString] = timesArray;
-          } else if (slot.mode === 'IN_PERSON') {
-            this.inPersonTimes[dateString] = timesArray;
-          }
-        }
+        });
       });
-    });
+      console.log('Online Times:', this.onlineTimes);
+      console.log('In Person Times:', this.inPersonTimes);
 
-        console.log(this.availableDates);
-
-    },
-    complete: () => {
-        console.log("complete");
+      // Appeler updateAvailableTimes après avoir chargé les disponibilités
+      this.updateAvailableTimes();
     },
     error: (err) => {
-        console.error('Erreur:', err);
+      console.error('Erreur:', err);
     }
-    })
+  });
   }
 
   onDateChange(event: any): void {
@@ -162,6 +190,9 @@ export class AddAppointmentComponent {
   }
 
   updateAvailableTimes(): void {
+    console.log('Selected Date:', this.selectedDate);
+    console.log('Selected Mode:', this.selectedMode);
+  
     if (this.selectedDate && this.selectedMode) {
       if (this.selectedMode === 'ONLINE') {
         this.availableTimes = this.onlineTimes[this.selectedDate] || [];
@@ -177,7 +208,7 @@ export class AddAppointmentComponent {
   selectTime(time: number): void {
     this.selectedTime = time;
     this.timeSelected = !!this.selectedTime;
-    console.log(this.selectedTime,"5555555555555")
+    console.log('Selected Time:::::::::::::', this.selectedTime);
   }
   isSelected(time: number): boolean {
     return this.selectedTime === time;
@@ -199,16 +230,35 @@ export class AddAppointmentComponent {
       console.log(doctor,"55555555555555");
       console.log(patient,"88888888888888");
 
+      if (this.isUpdateMode && this.appointmentId) {
+        //achanger with update
+        this.PatientServes.rescheduleAppointment(this.appointmentId, dateTime, hourAppointment, type).subscribe(
+          response => {
+            console.log('Appointment updated successfully', response);
+            this.dialogRef.close();
+            this.toster.success('successfully updated')
+            this.cdr.detectChanges();
+          },
+          error => {
+            console.error('Error updating appointment', error);
+            this.toster.error('Error updating appointment')
+          }
+        );
+      }else{
+
       this.PatientServes.createAppointment(dateTime, hourAppointment, type, doctor, patient).subscribe(
         response => {
           console.log('Appointment created successfully', response);
           this.dialogRef.close();
+          this.toster.success('successfully Created')
         },
         error => {
           console.error('Error creating appointment', error);
+          this.toster.error('Error creating appointment');
         }
       );
     }
+  }
   }
 
 

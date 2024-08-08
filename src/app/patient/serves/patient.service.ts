@@ -30,6 +30,11 @@ export class PatientService {
   }
   getTodayAppointments(patientID:any){
     return this.http.get(`${this.API_RL}appointment/todayAppointment/${patientID}`,this.httpOptions);
-
+  }
+  rescheduleAppointment(patientID:any, date:any, time:any , type:any){
+    return this.http.put(`${this.API_RL}appointment/rescheduleAppoinment/${patientID}`,{date : date ,
+      time : time ,
+      type : type
+    });
   }
 }

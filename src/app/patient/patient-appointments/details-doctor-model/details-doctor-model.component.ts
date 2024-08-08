@@ -15,4 +15,6 @@ export class DetailsDoctorModelComponent {
   closeDialog(): void {
     this.dialogRef.close();
   }
+
+  
 }
