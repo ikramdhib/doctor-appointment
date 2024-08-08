@@ -28,4 +28,8 @@ export class PatientService {
   getAllAppointments(patientID:any){
     return this.http.get(`${this.API_RL}appointment/patientAppointments/${patientID}`,this.httpOptions);
   }
+  getTodayAppointments(patientID:any){
+    return this.http.get(`${this.API_RL}appointment/todayAppointment/${patientID}`,this.httpOptions);
+
+  }
 }

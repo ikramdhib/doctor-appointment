@@ -1,16 +1,16 @@
-<div class="appointment-card bg-white col-12 position-relative">
+<div *ngIf="appointment" class="appointment-card bg-white col-12 position-relative">
     <img src="assets/card-img-3.png" alt="Top Corner Image" class="corner-image top-corner">
     <img src="assets/card-img-4.png" alt="Bottom Corner Image" class="corner-image bottom-corner">
     <h5 class="fw-medium">
         Your appointment is today!
     </h5>
     <div class="appointment-info">
-        <p class="doctor-name">Dr. John Doe</p>
-        <p class="appointment-time">Time: 3:00 PM</p>
-        <p class="appointment-date">Date: August 10, 2024</p>
+        <p class="doctor-name">Dr. {{ appointment.doctor.firstname }} {{ appointment.doctor.lastname }}</p>
+        <p class="appointment-time">Time: {{ appointment.dateAppointment | date: 'shortTime' }}</p>
+        <p class="appointment-date">Date: {{ appointment.dateAppointment | date: 'MMMM d, y' }}</p>
     </div>
     <div class="button-container">
+        <button class="btn join-button" *ngIf="appointment.type=='ONLINE'">Join</button>
         <button class="btn reschedule-button">Reschedule</button>
-        <button class="btn join-button">Join</button>
     </div>
 </div>
