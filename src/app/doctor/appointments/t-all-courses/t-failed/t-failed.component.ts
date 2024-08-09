@@ -12,6 +12,9 @@ import { DoctorServesService } from '../../../doctorServes/doctor-serves.service
 import { DialogComponent } from '../../../dialog/dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ToastrService } from 'ngx-toastr';
+
+
 @Component({
     selector: 'app-t-failed',
     standalone: true,
@@ -23,12 +26,12 @@ export class TFailedComponent {
 
     ELEMENT_DATA : any[] =[] ;
     status="CANCLED";
-    doctorID ="66b0bc6954a41110abb44cbc";
+    doctorID ="66b20b3baefd046b10d57ed6";
     displayedColumns: string[] = ['patient','appointmentDate','time', 'duration', 'status', 'type' , 'action'];
     dataSource = new MatTableDataSource<any>(this.ELEMENT_DATA);
     @ViewChild(MatPaginator) paginator: MatPaginator;
  
-    constructor(private DoctorServes: DoctorServesService, private cdr: ChangeDetectorRef ,public dialog: MatDialog , private snackBar: MatSnackBar) {}
+    constructor(public toster : ToastrService,private DoctorServes: DoctorServesService, private cdr: ChangeDetectorRef ,public dialog: MatDialog , private snackBar: MatSnackBar) {}
     ngOnInit() {
         this.LoadAppointment(this.doctorID, this.status);
     }
@@ -68,11 +71,12 @@ export class TFailedComponent {
                 this.LoadAppointment(this.doctorID , this.status);
             },
             complete: () => {
-                this.openSnackBar('Suppression avec succès', 'Fermer', 'success-snackbar');
+                this.toster.success('Deleted with success')
+                
                 this.cdr.detectChanges();
             },
             error: (err) => {
-                this.openSnackBar('Erreur lors de la suppression', 'Fermer', 'error-snackbar');
+                this.toster.error('Something went wroong')
                 console.error('Erreur:', err);
             }
         });
@@ -88,15 +92,5 @@ export class TFailedComponent {
         });
       }
 
-//popup 
-      openSnackBar(message: string, action: string, panelClass: string) {
-  console.log('Panel class:', panelClass); // Ajoutez ce log pour vérifier
-  this.snackBar.open(message, action, {
-    duration: 3000,
-    horizontalPosition: 'right',
-    verticalPosition: 'top',
-    panelClass: panelClass // Assurez-vous que la classe est appliquée
-  });
-}
-
+    
 }

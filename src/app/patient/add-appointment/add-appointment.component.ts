@@ -162,7 +162,9 @@ export class AddAppointmentComponent {
             }
           }
         });
+        
       });
+      
       console.log('Online Times:', this.onlineTimes);
       console.log('In Person Times:', this.inPersonTimes);
 
@@ -173,6 +175,8 @@ export class AddAppointmentComponent {
       console.error('Erreur:', err);
     }
   });
+
+  
   }
 
   onDateChange(event: any): void {
@@ -189,21 +193,55 @@ export class AddAppointmentComponent {
     this.updateAvailableTimes();
   }
 
+   getOccupiedHours(appointments: any[]): Set<number> {
+    const startHours = new Set<number>();
+
+    appointments.forEach(appointment => {
+      const appointmentStart = new Date(appointment.dateAppointment);
+      let startHour = appointmentStart.getHours();
+  
+      // Corriger l'heure si elle est supérieure de 1
+      startHour = startHour > 0 ? startHour - 1 : 23; // Gérer le cas où l'heure est minuit
+  
+      startHours.add(startHour);
+    });
+  
+    return startHours;
+  }
+
+
   updateAvailableTimes(): void {
     console.log('Selected Date:', this.selectedDate);
     console.log('Selected Mode:', this.selectedMode);
   
     if (this.selectedDate && this.selectedMode) {
-      if (this.selectedMode === 'ONLINE') {
-        this.availableTimes = this.onlineTimes[this.selectedDate] || [];
-      } else if (this.selectedMode === 'IN_PERSON') {
-        this.availableTimes = this.inPersonTimes[this.selectedDate] || [];
-      }
-      this.timeSelected = this.availableTimes.length > 0;
+      this.PatientServes.getAppointmentAvailibilitiesDoctor(this.doctorId, this.selectedDate).subscribe({
+        next: (appointments: any[]) => {
+          const occupiedHours = this.getOccupiedHours(appointments);
+  
+          console.log('Occupied Hours:', Array.from(occupiedHours));
+  
+          // Filtrer les heures disponibles
+          if (this.selectedMode === 'ONLINE') {
+            this.availableTimes = (this.onlineTimes[this.selectedDate] || [])
+              .filter(time => !occupiedHours.has(time));
+          } else if (this.selectedMode === 'IN_PERSON') {
+            this.availableTimes = (this.inPersonTimes[this.selectedDate] || [])
+              .filter(time => !occupiedHours.has(time));
+          }
+  
+          console.log('Available Times:', this.availableTimes);
+          this.timeSelected = this.availableTimes.length > 0;
+        },
+        error: (err) => {
+          console.error('Error fetching appointments:', err);
+        }
+      });
     } else {
       this.availableTimes = [];
       this.timeSelected = false;
     }
+    
   }
   selectTime(time: number): void {
     this.selectedTime = time;

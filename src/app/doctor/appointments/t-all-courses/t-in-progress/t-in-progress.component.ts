@@ -13,6 +13,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DialogComponent } from '../../../dialog/dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip'; // Import MatTooltipModule
+import { ToastrService } from 'ngx-toastr';
 @Component({
     selector: 'app-t-in-progress',
     standalone: true,
@@ -24,12 +25,12 @@ export class TInProgressComponent {
 
     ELEMENT_DATA : any[] =[] ;
     status="UNPLANNED";
-    doctorID ="66b0bc6954a41110abb44cbc";
+    doctorID ="66b20b3baefd046b10d57ed6";
     displayedColumns: string[] = ['patient','appointmentDate','time', 'duration', 'status', 'type' , 'action'];
     dataSource = new MatTableDataSource<any>(this.ELEMENT_DATA);
     @ViewChild(MatPaginator) paginator: MatPaginator;
  
-    constructor(private DoctorServes: DoctorServesService, private cdr: ChangeDetectorRef ,public dialog: MatDialog , private snackBar: MatSnackBar) {}
+    constructor(public toster : ToastrService,private DoctorServes: DoctorServesService, private cdr: ChangeDetectorRef ,public dialog: MatDialog , private snackBar: MatSnackBar) {}
     ngOnInit() {
         this.LoadAppointment(this.doctorID, this.status);
     }
@@ -68,11 +69,11 @@ export class TInProgressComponent {
                 this.LoadAppointment(this.doctorID , this.status);
             },
             complete: () => {
-                this.openSnackBar('Suppression avec succès', 'Fermer', 'success-snackbar');
+                this.toster.success('Deleted with success');
                 this.cdr.detectChanges();
             },
             error: (err) => {
-                this.openSnackBar('Erreur lors de la suppression', 'Fermer', 'error-snackbar');
+                this.toster.error('Erreur lors de la suppression');
                 console.error('Erreur:', err);
             }
         });
@@ -95,25 +96,15 @@ export class TInProgressComponent {
                 this.LoadAppointment(this.doctorID , this.status);
             },
             complete: () => {
-                this.openSnackBar('Changed with success', 'close', 'success-snackbar');
+                this.toster.success('Changed with success');
                 this.cdr.detectChanges();
             },
             error: (err) => {
-                this.openSnackBar('Erreur when updating', 'close', 'error-snackbar');
+                this.toster.error('Erreur when updating');
                 console.error('Erreur:', err);
             }
         });
       }
 
-//popup 
-      openSnackBar(message: string, action: string, panelClass: string) {
-  console.log('Panel class:', panelClass); // Ajoutez ce log pour vérifier
-  this.snackBar.open(message, action, {
-    duration: 3000,
-    horizontalPosition: 'right',
-    verticalPosition: 'top',
-    panelClass: panelClass // Assurez-vous que la classe est appliquée
-  });
-}
 
 }

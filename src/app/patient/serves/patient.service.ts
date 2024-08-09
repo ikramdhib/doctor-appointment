@@ -37,4 +37,10 @@ export class PatientService {
       type : type
     });
   }
+  getAppointmentAvailibilitiesDoctor(doctorID:any,date:any){
+    return this.http.get(`${this.API_RL}appointment/doctorAvailibilties/${doctorID}/date?date=${date}`,this.httpOptions)
+  }
+  cancelAppointment(appointmentID:any){
+    return this.http.put(`${this.API_RL}appointment/cancelAppointment/${appointmentID}`,this.httpOptions);
+  }
 }

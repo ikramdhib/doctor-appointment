@@ -8,6 +8,10 @@ import { DoctorServesService } from '../doctorServes/doctor-serves.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
+import {AddAppointmentDoctorComponent} from './add-appointment-doctor/add-appointment-doctor.component';
+import { MatDialog } from '@angular/material/dialog';
+
+
 @Component({
   selector: 'app-calendrier',
   standalone: true,
@@ -17,7 +21,7 @@ import { MatMenuModule } from '@angular/material/menu';
 })
 export class CalendrierComponent {
 
-  doctorID ="60c72b2f9b1e8a1f10f1e8a1";
+  doctorID ="66b20b3baefd046b10d57ed6";
 
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -40,13 +44,11 @@ export class CalendrierComponent {
     },
     events: [], // Les événements seront ajoutés ici
     eventContent: this.renderEventContent,
-    eventBackgroundColor: '#ffffff', // Définit une couleur de fond par défaut
-    eventBorderColor: '#ffffff', // Définit une couleur de bordure par défaut
-    eventTextColor: '#ffffff', // Définit une couleur de texte par défaut
+    dateClick: this.handleDateClick.bind(this),
   };
 
 
-  constructor(private doctorService: DoctorServesService) {  }
+  constructor(private doctorService: DoctorServesService , public dialog: MatDialog) {  }
 
   ngOnInit(): void {
     this.loadAppointments(this.doctorID);
@@ -104,9 +106,19 @@ export class CalendrierComponent {
   }
 
 
-  handleEventClick(clickInfo: any): void {
-    // Gérez le clic sur un événement
-    alert(`Event: ${clickInfo.event.title}`);
+  handleDateClick(arg: any): void {
+    const dialogRef = this.dialog.open(AddAppointmentDoctorComponent, {
+      width: '300px',
+      data: { date: arg.dateStr }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Handle saving the appointment here
+        console.log('The appointment was saved with the following details:', result);
+      }
+    });
   }
+
 
 }
