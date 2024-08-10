@@ -10,3 +10,19 @@
 <full-calendar [options]="calendarOptions"></full-calendar>
 </mat-card-content>
 </mat-card>
+
+<mat-card class="palette-card">
+    <mat-card-title>
+      <h5>Color Palette</h5>
+    </mat-card-title>
+    <mat-card-content>
+      <div class="color-container">
+        <div *ngFor="let color of colorPalette" class="color-item">
+          <div class="color-box" [ngStyle]="{'background-color': color.color}"></div>
+          <div class="color-label">{{ color.status }}</div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  

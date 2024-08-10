@@ -28,12 +28,15 @@ export class DoctorServesService {
     return this.http.put(`${this.API_RL}appointment/changeAppointmentStatus/${appointmentID}`,{appointmentStatus : appointmentStatus});
   }
   scheduleAppointment(doctor:any , date:any , time:any , type:any , patientEmail:any){
-    return this.http.post(`${this.API_RL}appointment/changeAppointmentStatus/${doctor}`,{
+    return this.http.post(`${this.API_RL}appointment/scheduleAppointment/${doctor}`,{
       date:date,
       time:time,
       type:type,
       patientEmail:patientEmail
     });
+  }
+  changeAppointmentDate(appointmentID:any , appointmentDate:any){
+    return this.http.put(`${this.API_RL}appointment/changeDate/${appointmentID}`,{appointmentDate : appointmentDate});
   }
 
 }

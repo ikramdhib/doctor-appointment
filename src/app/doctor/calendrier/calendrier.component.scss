@@ -191,6 +191,43 @@
 
 }
 
+.non-draggable {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .palette-card {
+    margin: 20px;
+    padding: 15px;
+  }
+  
+  mat-card-title {
+    margin-bottom: 15px;
+  }
+  
+  .color-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px; // Espace entre les éléments
+  }
+  
+  .color-item {
+    display: flex;
+    align-items: center;
+    gap: 10px; // Espace entre la boîte de couleur et le label
+  }
+  
+  .color-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+  }
+  
+  .color-label {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+
 /* Min width 992px to Max width 1199px */
 @media only screen and (min-width : 992px) and (max-width : 1199px) {}
 

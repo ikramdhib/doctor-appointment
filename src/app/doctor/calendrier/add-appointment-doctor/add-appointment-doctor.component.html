@@ -7,8 +7,8 @@
       <mat-datepicker #picker></mat-datepicker>
     </mat-form-field>
     <mat-radio-group formControlName="mode" aria-label="Select an option">
-      <mat-radio-button value="online" >Online</mat-radio-button>
-      <mat-radio-button value="in-person">In Person</mat-radio-button>
+      <mat-radio-button value="ONLINE" >Online</mat-radio-button>
+      <mat-radio-button value="IN_PERSON">In Person</mat-radio-button>
     </mat-radio-group>
     <!-- Use mat-form-field with mat-select for time selection -->
     <mat-form-field>
@@ -19,7 +19,6 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
-
     <!-- New field for email -->
     <mat-form-field>
       <input matInput placeholder="Patient's Email" formControlName="email" type="email">
@@ -35,5 +34,5 @@
 
 <div mat-dialog-actions>
   <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-button [mat-dialog-close]="appointmentForm.value" [disabled]="!appointmentForm.valid">Save</button>
+  <button mat-button [mat-dialog-close]="appointmentForm.value" (click)="addAppointment()" [disabled]="!appointmentForm.valid">Save</button>
 </div>
