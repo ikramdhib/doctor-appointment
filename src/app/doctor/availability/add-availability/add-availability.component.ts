@@ -36,24 +36,25 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class AddAvailabilityComponent {
   availabilityForm: FormGroup;
-  doctorID:any;
+  doctorID: any;
+  isEditMode = false;  // Flag to check if it's edit mode
 
   times: string[] = [
-    '08:00', '09:00',  '10:00',
-     '11:00', '12:00',
-    '13:00',  '14:00',  '15:00',
-    '16:00', '17:00', 
+    '08:00', '09:00', '10:00',
+    '11:00', '12:00',
+    '13:00', '14:00', '15:00',
+    '16:00', '17:00',
     '18:00'
   ];
 
   constructor(
     public dialogRef: MatDialogRef<AddAvailabilityComponent>,
     private fb: FormBuilder,
-    @Inject(MAT_DIALOG_DATA) public data: { date: string } ,
-    public AvvailabilityService : AvailabilityService,
-    public toaster : ToastrService,
+    @Inject(MAT_DIALOG_DATA) public data: {id:any, date: string, timeSlots?: any[] },
+    public AvvailabilityService: AvailabilityService,
+    public toaster: ToastrService
   ) {
-    this.doctorID="66b20b3baefd046b10d57ed6";
+    this.doctorID = "66b20b3baefd046b10d57ed6";
     this.availabilityForm = this.fb.group({
       onlineChecked: [false],
       onlineStartTime: [''],
@@ -62,9 +63,34 @@ export class AddAvailabilityComponent {
       inPersonStartTime: [''],
       inPersonEndTime: ['']
     });
+
+    if (data.timeSlots) {
+      this.isEditMode = true;
+      this.setFormValues(data.timeSlots);
+    }
   }
 
-  ngOnInit() {
+  ngOnInit() {}
+
+  setFormValues(timeSlots: any[]): void {
+    const onlineSlot = timeSlots.find(slot => slot.mode === 'ONLINE');
+    const inPersonSlot = timeSlots.find(slot => slot.mode === 'IN_PERSON');
+
+    if (onlineSlot) {
+      this.availabilityForm.patchValue({
+        onlineChecked: true,
+        onlineStartTime: onlineSlot.startTime,
+        onlineEndTime: onlineSlot.endTime
+      });
+    }
+
+    if (inPersonSlot) {
+      this.availabilityForm.patchValue({
+        inPersonChecked: true,
+        inPersonStartTime: inPersonSlot.startTime,
+        inPersonEndTime: inPersonSlot.endTime
+      });
+    }
   }
 
   onCancel(): void {
@@ -100,14 +126,24 @@ export class AddAvailabilityComponent {
       });
     }
 
-    this.AvvailabilityService.createAvailability(this.doctorID, availabilityData)
-      .subscribe(response => {
-        this.toaster.success('Availability created')
-        this.dialogRef.close(response);
-      }, error => {
-        this.toaster.error('Error creating availability')
-      });
+    if (this.isEditMode) {
+      // Update existing availability
+      this.AvvailabilityService.editAvailability(this.data.id, availabilityData)
+        .subscribe(response => {
+          this.toaster.success('Availability updated');
+          this.dialogRef.close(response);
+        }, error => {
+          this.toaster.error('Error updating availability');
+        });
+    } else {
+      // Create new availability
+      this.AvvailabilityService.createAvailability(this.doctorID, availabilityData)
+        .subscribe(response => {
+          this.toaster.success('Availability created');
+          this.dialogRef.close(response);
+        }, error => {
+          this.toaster.error('Error creating availability');
+        });
+    }
   }
-
- 
 }

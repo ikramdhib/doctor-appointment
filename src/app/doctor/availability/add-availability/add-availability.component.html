@@ -1,4 +1,4 @@
-<h1 mat-dialog-title>Add Availability</h1>
+<h1 mat-dialog-title>{{ isEditMode ? 'Edit Availability' : 'Add Availability' }}</h1>
 <div mat-dialog-content>
   <form [formGroup]="availabilityForm">
     <mat-checkbox formControlName="onlineChecked">Online</mat-checkbox>

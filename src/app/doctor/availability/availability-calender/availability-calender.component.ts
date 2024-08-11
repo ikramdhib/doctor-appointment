@@ -1,4 +1,4 @@
-import { Component,ChangeDetectorRef, OnInit, ViewChild, ViewContainerRef, ElementRef, TemplateRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewContainerRef, ElementRef, TemplateRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { FullCalendarComponent } from '@fullcalendar/angular'; // Import FullCalendarComponent
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -13,24 +13,27 @@ import { MatCardModule } from '@angular/material/card';
 import { MatMenu, MatMenuModule, MatMenuTrigger  } from '@angular/material/menu';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PortalModule, TemplatePortal } from '@angular/cdk/portal';
-import {Overlay, OverlayRef, PositionStrategy, ConnectedPosition  } from '@angular/cdk/overlay';
-import { OverlayModule } from '@angular/cdk/overlay';
+import { AvailabilityTableComponent} from '../availability-table/availability-table.component';
 
 @Component({
   selector: 'app-availability-calender',
   templateUrl: './availability-calender.component.html',
   standalone: true,
-  imports: [MatMenuModule,CommonModule, FullCalendarModule,OverlayModule,PortalModule, MatCardModule, MatButtonModule, MatMenuModule],
+  imports: [AvailabilityTableComponent,MatButtonModule,MatMenuModule ,MatMenuModule,CommonModule, FullCalendarModule, MatCardModule, MatButtonModule, MatMenuModule],
   styleUrls: ['./availability-calender.component.scss']
 })
 export class AvailabilityCalenderComponent implements OnInit {
    @ViewChild(FullCalendarComponent) calendarComponent!: FullCalendarComponent;
   @ViewChild('contextMenu') contextMenu!: TemplateRef<any>;
+  @ViewChild('menu') menu!: MatMenu;
   @ViewChild(MatMenuTrigger) contextMenuTrigger!: MatMenuTrigger;
+
   doctorID: any;
   selectedEvent: any;
-  overlayRef!: OverlayRef;
+
+  isCalendarVisible: boolean = true; // Initial state to show calendar
+  showContextMenu: boolean = false;
+  contextMenuPosition = { x: '0px', y: '0px' };
 
   calendarOptions: CalendarOptions = {
     initialView: 'dayGridMonth',
@@ -42,13 +45,12 @@ export class AvailabilityCalenderComponent implements OnInit {
     },
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
     events: [],
-    eventClick: this.handleEventClick.bind(this),
     eventContent: this.renderEventContent,
-    eventClassNames: ['fc-event']
+    eventClassNames: ['fc-event'],
+    eventClick: this.handleEventClick.bind(this) // Ajoutez cette ligne
   };
 
-  constructor(private dialog: MatDialog, private patientService: PatientService,
-      private overlay: Overlay, private viewContainerRef: ViewContainerRef) {
+  constructor(private dialog: MatDialog, private patientService: PatientService) {
     this.doctorID = "66b20b3baefd046b10d57ed6";
   }
 
@@ -65,6 +67,9 @@ export class AvailabilityCalenderComponent implements OnInit {
       default:
         return '#686868'; // Couleur par défaut
     }
+  }
+  toggleView(): void {
+    this.isCalendarVisible = !this.isCalendarVisible;
   }
   
 
@@ -109,21 +114,29 @@ export class AvailabilityCalenderComponent implements OnInit {
           padding: 5px;
           font-size: 12px;
           text-align: center;
-          overflow: hidden; /* Ajouté pour éviter le débordement du texte */
-          white-space: normal; /* Permet le retour à la ligne du texte */
-          ">
+          overflow: hidden;
+          white-space: normal;
+          " 
+          (click)="openContextMenu($event, eventInfo.event)">
           ${eventInfo.event.title}
         </div>
       `
     };
+  }
+  
+  openContextMenu(event: MouseEvent, calendarEvent: any) {
+    event.preventDefault();
+    this.selectedEvent = calendarEvent;
+    this.contextMenuTrigger.openMenu();
   }
 
   loadAvailabilities(doctorID: any) {
     this.patientService.getdoctorDetailsWithAvailibities(doctorID).subscribe({
       next: (res: any) => {
         const events = this.formatEvents(res.availabilities);
+        console.log('Loaded events:', events); // Ajouter ceci
         this.calendarOptions.events = events;
-
+  
         if (this.calendarComponent) {
           this.calendarComponent.getApi().removeAllEvents(); // Nettoyer les anciens événements
           this.calendarComponent.getApi().addEventSource(events); // Ajouter les nouveaux événements
@@ -132,39 +145,33 @@ export class AvailabilityCalenderComponent implements OnInit {
     });
   }
 
+  
+  
+
   handleEventClick(arg: any) {
-    this.selectedEvent = arg.event;
-
-    if (!this.overlayRef) {
-      const positionStrategy: PositionStrategy = this.overlay.position()
-        .flexibleConnectedTo(arg.el)
-        .withPositions([
-          {
-            originX: 'start',
-            originY: 'bottom',
-            overlayX: 'start',
-            overlayY: 'top',
-          },
-        ]);
-
-      this.overlayRef = this.overlay.create({
-        positionStrategy,
-        hasBackdrop: true,
-      });
+    console.log('Event clicked:', arg);
+    if (arg && arg.jsEvent) {
+      const x = arg.jsEvent.clientX;
+      const y = arg.jsEvent.clientY;
+      console.log(`Click position: x=${x}, y=${y}`);
+    } else {
+      console.error('Event or jsEvent is undefined');
     }
+  }
 
-    const portal = new TemplatePortal(this.contextMenu, this.viewContainerRef);
-    this.overlayRef.attach(portal);
+  editAvailability() {
+    console.log('Edit:', this.selectedEvent);
+    this.showContextMenu = false;
+  }
+
+  deleteAvailability() {
+    console.log('Delete:', this.selectedEvent);
+    this.showContextMenu = false;
+  }
+
+  closeContextMenu() {
+    this.showContextMenu = false;
   }
   
-  editEvent() {
-    console.log('Editing event:', this.selectedEvent);
-    // Logique pour ouvrir la boîte de dialogue ou rediriger vers la page de modification
-  }
-
-  deleteEvent() {
-    console.log('Deleting event:', this.selectedEvent);
-    // Logique pour confirmer et supprimer l'événement
-  }
 
 }

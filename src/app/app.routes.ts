@@ -28,7 +28,8 @@ import { CalendrierComponent } from './doctor/calendrier/calendrier.component';
 import {PatientComponent} from './patient/patient.component';
 import{PatientAppointmentsComponent} from './patient/patient-appointments/patient-appointments.component';
 import{AvailabilityComponent} from './doctor/availability/availability.component';
-import {AvailabilityCalenderComponent} from './doctor/availability/availability-calender/availability-calender.component'
+import {AvailabilityCalenderComponent} from './doctor/availability/availability-calender/availability-calender.component';
+import {AvailabilityTableComponent} from './doctor/availability/availability-table/availability-table.component';
 
 export const routes: Routes = [
     {path: '', component: LandingPageComponent},
@@ -50,7 +51,7 @@ export const routes: Routes = [
   //add : 
   {path :'ui-element', component:UiElementsComponent,
     children:[
-        {path:'tabels',component:TableComponent},
+        {path:'tables',component:TableComponent},
         {path:'calender',component:CalendrierComponent}
     ]
   },
@@ -63,6 +64,7 @@ export const routes: Routes = [
         {path:'availability', component:AvailabilityComponent , 
             children:[
                 {path:'calender',component:AvailabilityCalenderComponent},
+                {path:'availabilitytTable',component:AvailabilityTableComponent},
             ]
         }
     ]
