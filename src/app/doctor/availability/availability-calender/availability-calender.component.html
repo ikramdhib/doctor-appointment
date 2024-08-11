@@ -1,0 +1,18 @@
+
+  
+<mat-card class="trinta-card all-courses-card mb-25 bg-white border-none d-block">
+    <mat-card-title>
+      <h5 class="mt-0 mb-0">Availability calendar</h5>
+    </mat-card-title>
+    <mat-card-content>
+      <full-calendar [options]="calendarOptions"></full-calendar>
+    </mat-card-content>
+  </mat-card>
+  <ng-template #contextMenu>
+    <mat-menu>
+      <button mat-menu-item (click)="editEvent()">Edit</button>
+      <button mat-menu-item (click)="deleteEvent()">Delete</button>
+    </mat-menu>
+  </ng-template>
+  
+  

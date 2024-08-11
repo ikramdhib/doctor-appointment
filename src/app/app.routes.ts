@@ -27,6 +27,8 @@ import {AppointmentsComponent} from './doctor/appointments/appointments.componen
 import { CalendrierComponent } from './doctor/calendrier/calendrier.component';
 import {PatientComponent} from './patient/patient.component';
 import{PatientAppointmentsComponent} from './patient/patient-appointments/patient-appointments.component';
+import{AvailabilityComponent} from './doctor/availability/availability.component';
+import {AvailabilityCalenderComponent} from './doctor/availability/availability-calender/availability-calender.component'
 
 export const routes: Routes = [
     {path: '', component: LandingPageComponent},
@@ -57,7 +59,12 @@ export const routes: Routes = [
    {path:'doctor' , component:DoctorComponent,
     children:[
         {path:'appointments',component:AppointmentsComponent},
-        {path:'calender',component:CalendrierComponent}
+        {path:'calender',component:CalendrierComponent},
+        {path:'availability', component:AvailabilityComponent , 
+            children:[
+                {path:'calender',component:AvailabilityCalenderComponent},
+            ]
+        }
     ]
    },
 
