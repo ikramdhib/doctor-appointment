@@ -20,7 +20,6 @@ import { RegisterComponent } from './Auth/register/register.component';
 import { authGuard } from './Auth/auth.guard';
 import { UsersComponent } from './Users/users/users.component';
 import { UiElementsComponent} from './ui-elements/ui-elements.component';
-import {ChipsComponent} from './ui-elements/chips/chips.component';
 import {TableComponent} from './ui-elements/table/table.component';
 import {DoctorComponent} from './doctor/doctor.component';
 import {AppointmentsComponent} from './doctor/appointments/appointments.component'
@@ -30,6 +29,7 @@ import{PatientAppointmentsComponent} from './patient/patient-appointments/patien
 import{AvailabilityComponent} from './doctor/availability/availability.component';
 import {AvailabilityCalenderComponent} from './doctor/availability/availability-calender/availability-calender.component';
 import {AvailabilityTableComponent} from './doctor/availability/availability-table/availability-table.component';
+import {NotificationComponent} from './common/notification/notification.component';
 
 export const routes: Routes = [
     {path: '', component: LandingPageComponent},
@@ -55,6 +55,8 @@ export const routes: Routes = [
         {path:'calender',component:CalendrierComponent}
     ]
   },
+  //notifs path
+  {path:'notifications', component:NotificationComponent},
 
 //doctor routes
    {path:'doctor' , component:DoctorComponent,
