@@ -30,4 +30,7 @@ export class NotificationService {
   getAllUserNotifs(userId:any){
     return this.http.get<any>(`${this.API_RL}notification/notifications/${userId}`);
   }
+  deleteAll(userId:any){
+    return this.http.delete(`${this.API_RL}notification/deleteAllNotification/${userId}`);
+  }
 }

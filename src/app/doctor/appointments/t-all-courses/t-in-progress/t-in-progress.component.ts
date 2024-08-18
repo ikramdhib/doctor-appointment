@@ -14,6 +14,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DialogComponent } from '../../../dialog/dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip'; // Import MatTooltipModule
 import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from '../../../../common/header/notificationServices/notification.service';
 @Component({
     selector: 'app-t-in-progress',
     standalone: true,
@@ -30,7 +31,9 @@ export class TInProgressComponent {
     dataSource = new MatTableDataSource<any>(this.ELEMENT_DATA);
     @ViewChild(MatPaginator) paginator: MatPaginator;
  
-    constructor(public toster : ToastrService,private DoctorServes: DoctorServesService, private cdr: ChangeDetectorRef ,public dialog: MatDialog , private snackBar: MatSnackBar) {}
+    constructor(public toster : ToastrService,private DoctorServes: DoctorServesService,
+        public notificationService : NotificationService,
+        private cdr: ChangeDetectorRef ,public dialog: MatDialog , private snackBar: MatSnackBar) {}
     ngOnInit() {
         this.LoadAppointment(this.doctorID, this.status);
     }
@@ -61,39 +64,32 @@ export class TInProgressComponent {
         const date = new Date(dateString);
         return date.toISOString().substring(11, 16); // Extract time in HH:mm format
     }
-    //delet pointment
-    deleteAppointmentwithID(appointmentID:any){
-        console.log(appointmentID,"zzzzzzzzzzzzzzz")
-        this.DoctorServes.deleteAppointmentWithID(appointmentID).subscribe({
-            next: (res: any) => {
-                this.LoadAppointment(this.doctorID , this.status);
-            },
-            complete: () => {
-                this.toster.success('Deleted with success');
-                this.cdr.detectChanges();
-            },
-            error: (err) => {
-                this.toster.error('Erreur lors de la suppression');
-                console.error('Erreur:', err);
-            }
-        });
-    }
-
-    deleteAppointment(appointmentID: any): void {
-        const dialogRef = this.dialog.open(DialogComponent);
-    
-        dialogRef.afterClosed().subscribe(result => {
-          if (result === true) {
-            this.deleteAppointmentwithID(appointmentID);
-          }
-        });
-      }
+   
 
       //confirm appointment 
       updateAppointmentStatus(appointmentID:any , appointmentStatus:any){
         this.DoctorServes.updateAppointmentStatus(appointmentID,appointmentStatus).subscribe({
             next: (res: any) => {
                 this.LoadAppointment(this.doctorID , this.status);
+                if(appointmentStatus=='CANCLED'){
+                    const notification = {
+                        senderId: this.doctorID,
+                        recipientId:res.patient,
+                        appointmentId:appointmentID,
+                        message: "Your appointment is cancel by your doctor , please take another appointment or contact your doctor",
+                        type:"CANCELED"
+                    }
+                    this.notificationService.sendNotification(notification);
+                }else if(appointmentStatus=='PLANIFIED'){
+                    const notification = {
+                        senderId: this.doctorID,
+                        recipientId:res.patient,
+                        appointmentId:appointmentID,
+                        message: "Your appointment is confirmed by your doctor , please be on time !!",
+                        type:"CONFIRMED"
+                    }
+                    this.notificationService.sendNotification(notification);
+                }
             },
             complete: () => {
                 this.toster.success('Changed with success');

@@ -21,6 +21,7 @@ import { PatientService } from '../../../patient/serves/patient.service';
 import  moment from 'moment';
 import { DoctorServesService } from '../../doctorServes/doctor-serves.service';
 import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from '../../../common/header/notificationServices/notification.service';
 
 @Component({
   selector: 'app-add-appointment-doctor',
@@ -46,6 +47,7 @@ export class AddAppointmentDoctorComponent {
     private cdr: ChangeDetectorRef,
     public DoctorServes : DoctorServesService,
     public toster : ToastrService,
+    public notificationService : NotificationService
   ) {
     this.doctorID="66b20b3baefd046b10d57ed6";
     this.appointmentForm = this.fb.group({
@@ -144,8 +146,16 @@ console.log(formValue.email);
       formValue.mode,
       formValue.email
     ).subscribe({
-      next: () => {
+      next: (res:any) => {
         console.log('Appointment successfully scheduled.');
+        const notification = {
+          senderId: this.doctorID,
+          recipientId:res.patient,
+          appointmentId:res._id,
+          message: "You have a new appointment scheduled by your doctor , please be on time !!",
+          type:"ADDED"
+      }
+      this.notificationService.sendNotification(notification);
       },
       error: (err) => {
         this.toster.error("Error scheduling appointment")

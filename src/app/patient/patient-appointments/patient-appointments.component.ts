@@ -14,6 +14,7 @@ import { DoctorServesService } from '../../doctor/doctorServes/doctor-serves.ser
 import { ToastrService } from 'ngx-toastr';
 import {AddAppointmentComponent} from '../add-appointment/add-appointment.component';
 import { MatTooltipModule } from '@angular/material/tooltip'; // Import MatTooltipModule
+import { NotificationService } from '../../common/header/notificationServices/notification.service';
 
 @Component({
   selector: 'app-patient-appointments',
@@ -30,7 +31,9 @@ export class PatientAppointmentsComponent {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  constructor(public toster : ToastrService,public DoctorServes : DoctorServesService,  public dialog: MatDialog ,private PatientServes: PatientService, private cdr: ChangeDetectorRef ) {}
+  constructor(public toster : ToastrService,public DoctorServes : DoctorServesService, 
+    public notificationService :  NotificationService,
+     public dialog: MatDialog ,private PatientServes: PatientService, private cdr: ChangeDetectorRef ) {}
 
   ngOnInit() {
     this.LoadAppointment(this.patientID);
@@ -78,6 +81,14 @@ updateAppointmentStatus(appointmentID:any){
   this.PatientServes.cancelAppointment(appointmentID).subscribe({
       next: (res: any) => {
           this.LoadAppointment(this.patientID);
+          const notification = {
+            senderId: res.patient,
+            recipientId:res.doctor,
+            appointmentId:appointmentID,
+            message: "Your appointment is canceled , you can contact your patient ",
+            type:"CANCELED"
+        }
+        this.notificationService.sendNotification(notification);
       },
       complete: () => {
           this.toster.success('Changed with success');

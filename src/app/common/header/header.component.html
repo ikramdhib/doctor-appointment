@@ -89,10 +89,10 @@
                 </mat-menu>
             </li>
             <li>
-                <button mat-button [matMenuTriggerFor]="notificationsMenu" class="notifications-menu-btn">
+                <button mat-button [matMenuTriggerFor]="notificationsMenu" (click)="decreeseNotifcationNumbert()" class="notifications-menu-btn">
                     <i-feather name="bell"></i-feather>
-                    <span *ngIf="notifications.length > 0" class="trinta-badge fw-bold bg-primary text-center text-white rounded-circle d-flex align-items-center justify-content-center">
-                        {{ notifications.length }}
+                    <span *ngIf="unreadCount > 0" class="trinta-badge fw-bold bg-primary text-center text-white rounded-circle d-flex align-items-center justify-content-center">
+                        {{ unreadCount }}
                     </span>
                 </button>
                 <mat-menu class="notifications-menu-dropdown" #notificationsMenu="matMenu" xPosition="before">
@@ -103,9 +103,6 @@
                                 {{notifications.length}}
                             </span>
                         </span>
-                        <a routerLink="/notifications" class="link-btn fw-medium text-primary">
-                            Clear All
-                        </a>
                     </div>
                     <ul class="menu-body p-0 mt-0 list-unstyled">
                         <li *ngFor="let notification of notifications" class="position-relative" >
@@ -123,7 +120,7 @@
                         </li>
                     </ul>
                     <div class="menu-footer text-center">
-                        <a routerLink="notifications" class="text-primary text-decoration-underline d-inline-block fw-medium">
+                        <a routerLink="notifications" (click)="markAllNotificationsAsSeen()" class="text-primary text-decoration-underline d-inline-block fw-medium">
                             See All Notifications
                         </a>
                     </div>

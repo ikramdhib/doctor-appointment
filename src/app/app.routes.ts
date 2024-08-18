@@ -59,7 +59,7 @@ export const routes: Routes = [
   {path:'notifications', component:NotificationComponent},
 
 //doctor routes
-   {path:'doctor' , component:DoctorComponent,
+   {path:'doctor' , component:DoctorComponent, canActivate: [authGuard],data: { role: ['DOCTOR']} ,
     children:[
         {path:'appointments',component:AppointmentsComponent},
         {path:'calender',component:CalendrierComponent},
@@ -73,7 +73,7 @@ export const routes: Routes = [
    },
 
    //Patient routes 
-   {path:'patient', component:PatientComponent ,
+   {path:'patient', component:PatientComponent , canActivate: [authGuard],data: { role: ['PATIENT']} ,
     children:[
         {path:'appointments',component:PatientAppointmentsComponent},
     ]

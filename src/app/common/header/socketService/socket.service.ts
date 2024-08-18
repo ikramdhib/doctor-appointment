@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { io, Socket } from 'socket.io-client';
 
 @Injectable({
@@ -7,21 +8,22 @@ import { io, Socket } from 'socket.io-client';
 export class SocketService {
   private socket: Socket;
 
-  constructor() {
-    this.socket = io('http://localhost:5000'); // Remplacez par l'URL de votre serveur Node.js
+  constructor( public toster : ToastrService) {
+    this.socket = io('http://localhost:5000'); 
   }
 
-  // Méthode pour écouter un événement
+  
   on(eventName: string, callback: (data: any) => void): void {
     this.socket.on(eventName, callback);
   }
 
-  // Méthode pour émettre un événement
+  
   emit(eventName: string, data: any): void {
     this.socket.emit(eventName, data);
+    this.toster.success(data.message)
   }
 
-  // Méthode pour déconnecter le socket
+  
   disconnect(): void {
     this.socket.disconnect();
   }

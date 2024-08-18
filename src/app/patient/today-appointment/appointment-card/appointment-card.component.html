@@ -1,4 +1,5 @@
-<div *ngIf="appointment" class="appointment-card bg-white col-12 position-relative">
+<!-- Display if there is an appointment -->
+<div *ngIf="appointment; else noAppointment" class="appointment-card bg-white col-12 position-relative">
     <img src="assets/card-img-3.png" alt="Top Corner Image" class="corner-image top-corner">
     <img src="assets/card-img-4.png" alt="Bottom Corner Image" class="corner-image bottom-corner">
     <h5 class="fw-medium">
@@ -11,6 +12,17 @@
     </div>
     <div class="button-container">
         <button class="btn join-button" *ngIf="appointment.type=='ONLINE'">Join</button>
-        <button class="btn reschedule-button" (click)="openAppointmentDialog(appointment)" >Reschedule</button>
+        <button class="btn reschedule-button" (click)="openAppointmentDialog(appointment)">Reschedule</button>
     </div>
 </div>
+
+<!-- Template for no appointment -->
+<ng-template #noAppointment>
+    <div class="no-appointment-message bg-white col-12 position-relative">
+        <h5 class="fw-medium">
+            You have no appointments today.
+        </h5>
+        <p>Please check back later or schedule a new appointment.</p>
+    </div>
+</ng-template>
+

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule, DatePipe, NgClass } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +9,7 @@ import { FeathericonsModule } from '../../apps/icons/feathericons/feathericons.m
 
 import { SocketService } from './socketService/socket.service';
 import { NotificationService } from './notificationServices/notification.service';
+import { ToastrService } from 'ngx-toastr';
 @Component({
     selector: 'app-header',
     standalone: true,
@@ -23,19 +24,23 @@ export class HeaderComponent {
 
     notifications: any[] = [];
     unreadCount:any;
-
+     userId:any; 
     constructor(
+        private cdr: ChangeDetectorRef ,
         public toggleService: ToggleService,
         private datePipe: DatePipe,
         private authService: AuthService,
         private router: Router,
         private socketService: SocketService,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        public toster : ToastrService
 
     ) {
         this.toggleService.isToggled$.subscribe(isToggled => {
             this.isToggled = isToggled;
         });
+
+         this.userId = '66b4f44ca1e639b6cb2304fd'; 
     }
 
     ngOnInit(): void {
@@ -43,9 +48,10 @@ export class HeaderComponent {
         this.socketService.on('newNotification', (data) => {
           console.log('Nouvelle notification reçue:', data);
           this.notifications.push(data);
+          this.unreadCount=this.notifications.length;
         });
-        const userId = '66b4f44ca1e639b6cb2304fd'; 
-        this.notificationService.getAllUserNotif(userId).subscribe(notifs => {
+       
+        this.notificationService.getAllUserNotif(this.userId).subscribe(notifs => {
           this.notifications = notifs;
         });
       }
@@ -87,5 +93,24 @@ export class HeaderComponent {
         this.authService.logout();
         this.router.navigate(['/']); 
     }
+
+    markAllNotificationsAsSeen(): void {
+       
+        this.notificationService.markAsSeen(this.userId).subscribe(
+          (response) => {
+            console.log(response.message); 
+            this.notifications.forEach(notification => notification.seen = true);
+            this.cdr.detectChanges();
+          },
+          (error) => {
+            console.error('Error marking notifications as seen', error);
+          }
+        );
+      }
+    decreeseNotifcationNumbert(){
+        this.unreadCount=0;
+        this.cdr.detectChanges();
+    }
+   
     
 }

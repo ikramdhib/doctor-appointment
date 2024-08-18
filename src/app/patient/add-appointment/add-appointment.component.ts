@@ -22,6 +22,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { FeathericonsModule } from '../../apps/icons/feathericons/feathericons.module';
 import { PatientService } from '../serves/patient.service';
 import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from '../../common/header/notificationServices/notification.service';
 
 @Component({
   selector: 'app-add-appointment',
@@ -60,7 +61,10 @@ export class AddAppointmentComponent {
   appointmentId: string | null = null;
 
 
-  constructor(private cdr: ChangeDetectorRef,@Inject(MAT_DIALOG_DATA) public data: any ,private _formBuilder: FormBuilder,public dialogRef: MatDialogRef<AddAppointmentComponent> , public PatientServes : PatientService , public toster : ToastrService) {
+  constructor(private cdr: ChangeDetectorRef,@Inject(MAT_DIALOG_DATA) public data: any ,
+  private _formBuilder: FormBuilder,public dialogRef: MatDialogRef<AddAppointmentComponent> , 
+  public PatientServes : PatientService , public toster : ToastrService,
+  public notificationService : NotificationService) {
     this.isUpdateMode = data.isUpdateMode;
     this.appointmentId = data.appointmentId || null;
     this.selectedDate = data.appointmentDate || null;
@@ -270,30 +274,47 @@ export class AddAppointmentComponent {
 
       if (this.isUpdateMode && this.appointmentId) {
         //achanger with update
-        this.PatientServes.rescheduleAppointment(this.appointmentId, dateTime, hourAppointment, type).subscribe(
-          response => {
+        this.PatientServes.rescheduleAppointment(this.appointmentId, dateTime, hourAppointment, type).subscribe({
+          next:(response:any) => {
             console.log('Appointment updated successfully', response);
             this.dialogRef.close();
             this.toster.success('successfully updated')
             this.cdr.detectChanges();
+            const notification = {
+              senderId: patient,
+              recipientId:doctor,
+              appointmentId:response._id,
+              message: "Your aapointment is updated , check it ",
+              type:"UPDATED"
+            }
+              this.notificationService.sendNotification(notification);
           },
-          error => {
+          error:(error) => {
             console.error('Error updating appointment', error);
             this.toster.error('Error updating appointment')
           }
+        }
         );
       }else{
 
-      this.PatientServes.createAppointment(dateTime, hourAppointment, type, doctor, patient).subscribe(
-        response => {
+      this.PatientServes.createAppointment(dateTime, hourAppointment, type, doctor, patient).subscribe({
+       next :( response:any) => {
           console.log('Appointment created successfully', response);
           this.dialogRef.close();
           this.toster.success('successfully Created')
+          const notification = {
+            senderId: patient,
+            recipientId:doctor,
+            appointmentId:response._id,
+            message: "Your have a new Appointment scheduled by a new patient",
+            type:"ADDED"}
+            this.notificationService.sendNotification(notification);
         },
-        error => {
+        error:(error) => {
           console.error('Error creating appointment', error);
           this.toster.error('Error creating appointment');
         }
+      }
       );
     }
   }

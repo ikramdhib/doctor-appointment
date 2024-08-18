@@ -11,9 +11,9 @@
           <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
         <div>
-            <button mat-raised-button color="primary" (click)="stepper.next()" [disabled]="!selectedDate">Next</button>
+            <button mat-raised-button color="primary" (click)="stepper.next()" [disabled]="!selectedDate"><i class="ri-arrow-right-s-line"></i></button>
           </div>
-      </form>
+      </form> 
     </mat-step>
     <mat-step [stepControl]="secondFormGroup"  [completed]="modeSelected">
         <form [formGroup]="secondFormGroup">
