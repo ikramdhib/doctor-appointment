@@ -39,21 +39,28 @@ export class HeaderComponent {
         this.toggleService.isToggled$.subscribe(isToggled => {
             this.isToggled = isToggled;
         });
-
-         this.userId = '66b4f44ca1e639b6cb2304fd'; 
     }
 
     ngOnInit(): void {
-        // Écouter les notifications en temps réel via Socket.io
-        this.socketService.on('newNotification', (data) => {
-          console.log('Nouvelle notification reçue:', data);
-          this.notifications.push(data);
-          this.unreadCount=this.notifications.length;
-        });
-       
-        this.notificationService.getAllUserNotif(this.userId).subscribe(notifs => {
-          this.notifications = notifs;
-        });
+      if (localStorage.hasOwnProperty('userID')) {
+        this.userId = localStorage.getItem('userID');
+        console.log('doctor id', this.userId);
+    } 
+
+  // Rejoindre la salle spécifique à l'utilisateur
+  this.socketService.joinRoom(this.userId);
+
+  // Écouter les notifications en temps réel via Socket.io
+  this.socketService.on('newNotification', (data) => {
+    console.log('Nouvelle notification reçue:', data);
+    this.notifications.push(data);
+    this.unreadCount = this.notifications.length;
+  });
+
+  // Charger les notifications existantes depuis l'API
+  this.notificationService.getAllUserNotif(this.userId).subscribe(notifs => {
+    this.notifications = notifs;
+  });
       }
 
     

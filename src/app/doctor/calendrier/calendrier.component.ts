@@ -30,7 +30,7 @@ export class CalendrierComponent {
     { status: 'UNPLANNED', color: '#6c757d' },
   ];
 
-  doctorID = "66b20b3baefd046b10d57ed6";
+  doctorID :any;
 
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -61,6 +61,10 @@ export class CalendrierComponent {
   constructor(private cdr: ChangeDetectorRef, private doctorService: DoctorServesService, public dialog: MatDialog) { }
 
   ngOnInit(): void {
+    if (localStorage.hasOwnProperty('userID')) {
+      this.doctorID = localStorage.getItem('userID');
+      console.log('doctor id', this.doctorID);
+  }
     this.loadAppointments(this.doctorID);
   }
 

@@ -70,20 +70,26 @@ export class AddAppointmentComponent {
     this.selectedDate = data.appointmentDate || null;
     this.selectedMode = data.appointmentMode || null;
     this.selectedTime = data.appointmentTime || null;
+    this.doctorId=data.doctorID;
+
 
     console.log( this.appointmentId,"00")
     console.log( this.selectedDate,"00")
     console.log( this.selectedMode,"00")
     console.log( this.selectedTime,"00")
+    console.log( this.doctorId,"08")
 
-    this.getAvailibilityOfDoctor("66b20b3baefd046b10d57ed6");
+    
     this.minDate = new Date(); // La date minimum est aujourd'hui
-    this.patientId='66afd28847bfaee53e8d6a56';
-    this.doctorId="66b20b3baefd046b10d57ed6";
+    this.getAvailibilityOfDoctor(this.doctorId);
+    
   }
 
   ngOnInit(): void {
-    
+    if (localStorage.hasOwnProperty('userID')) {
+      this.patientId = localStorage.getItem('userID');
+      console.log('patient id', this.patientId);
+  }
     this.firstFormGroup = this._formBuilder.group({
       date: [null]
     });
@@ -119,6 +125,8 @@ export class AddAppointmentComponent {
         this.availableTimes = this.availableTimes || [];
       }
     }
+    
+    
 }
 
   closeDialog(): void {
@@ -287,7 +295,11 @@ export class AddAppointmentComponent {
               message: "Your aapointment is updated , check it ",
               type:"UPDATED"
             }
-              this.notificationService.sendNotification(notification);
+             this.notificationService.sendNotification(notification).subscribe({
+              next:(res:any)=>{
+                console.log("success");
+              }
+             });
           },
           error:(error) => {
             console.error('Error updating appointment', error);
@@ -308,7 +320,11 @@ export class AddAppointmentComponent {
             appointmentId:response._id,
             message: "Your have a new Appointment scheduled by a new patient",
             type:"ADDED"}
-            this.notificationService.sendNotification(notification);
+            this.notificationService.sendNotification(notification).subscribe({
+              next:(res:any)=>{
+                console.log(res)
+              }
+            });
         },
         error:(error) => {
           console.error('Error creating appointment', error);

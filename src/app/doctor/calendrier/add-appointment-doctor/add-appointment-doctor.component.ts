@@ -49,7 +49,6 @@ export class AddAppointmentDoctorComponent {
     public toster : ToastrService,
     public notificationService : NotificationService
   ) {
-    this.doctorID="66b20b3baefd046b10d57ed6";
     this.appointmentForm = this.fb.group({
       date: [{ value: data.date, disabled: true }, Validators.required],
       mode: ['', Validators.required],
@@ -61,8 +60,13 @@ export class AddAppointmentDoctorComponent {
   }
 
   ngOnInit(): void {
+  
     const selectedDate = new Date(this.appointmentForm.get('date').value).toISOString().split('T')[0];
     this.getAppointmentsInthSameDate(this.doctorID, selectedDate);
+    if (localStorage.hasOwnProperty('userID')) {
+      this.doctorID = localStorage.getItem('userID');
+      console.log('doctor id', this.doctorID);
+  }
      
   }
   onNoClick(): void {
@@ -155,7 +159,12 @@ console.log(formValue.email);
           message: "You have a new appointment scheduled by your doctor , please be on time !!",
           type:"ADDED"
       }
-      this.notificationService.sendNotification(notification);
+      this.notificationService.sendNotification(notification).subscribe({
+        next:(res:any)=>{
+          console.log("success");
+          
+        }
+      });
       },
       error: (err) => {
         this.toster.error("Error scheduling appointment")

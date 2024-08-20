@@ -54,7 +54,6 @@ export class AddAvailabilityComponent {
     public AvvailabilityService: AvailabilityService,
     public toaster: ToastrService
   ) {
-    this.doctorID = "66b20b3baefd046b10d57ed6";
     this.availabilityForm = this.fb.group({
       onlineChecked: [false],
       onlineStartTime: [''],
@@ -70,7 +69,12 @@ export class AddAvailabilityComponent {
     }
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (localStorage.hasOwnProperty('userID')) {
+      this.doctorID = localStorage.getItem('userID');
+      console.log('doctor id', this.doctorID);
+  }
+  }
 
   setFormValues(timeSlots: any[]): void {
     const onlineSlot = timeSlots.find(slot => slot.mode === 'ONLINE');

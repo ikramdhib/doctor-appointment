@@ -51,10 +51,13 @@ export class AvailabilityCalenderComponent implements OnInit {
   };
 
   constructor(private dialog: MatDialog, private patientService: PatientService) {
-    this.doctorID = "66b20b3baefd046b10d57ed6";
   }
 
   ngOnInit() {
+    if (localStorage.hasOwnProperty('userID')) {
+      this.doctorID = localStorage.getItem('userID');
+      console.log('doctor id', this.doctorID);
+  }
     this.loadAvailabilities(this.doctorID);
   }
 

@@ -26,7 +26,7 @@ export class TInProgressComponent {
 
     ELEMENT_DATA : any[] =[] ;
     status="UNPLANNED";
-    doctorID ="66b20b3baefd046b10d57ed6";
+    doctorID :any;
     displayedColumns: string[] = ['patient','appointmentDate','time', 'duration', 'status', 'type' , 'action'];
     dataSource = new MatTableDataSource<any>(this.ELEMENT_DATA);
     @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -35,6 +35,10 @@ export class TInProgressComponent {
         public notificationService : NotificationService,
         private cdr: ChangeDetectorRef ,public dialog: MatDialog , private snackBar: MatSnackBar) {}
     ngOnInit() {
+        if (localStorage.hasOwnProperty('userID')) {
+            this.doctorID = localStorage.getItem('userID');
+            console.log('doctor id', this.doctorID);
+        }
         this.LoadAppointment(this.doctorID, this.status);
     }
 
@@ -79,7 +83,12 @@ export class TInProgressComponent {
                         message: "Your appointment is cancel by your doctor , please take another appointment or contact your doctor",
                         type:"CANCELED"
                     }
-                    this.notificationService.sendNotification(notification);
+                    this.notificationService.sendNotification(notification).subscribe({
+                        next:(res:any)=>{
+                            console.log("success");
+                            
+                        }
+                    });
                 }else if(appointmentStatus=='PLANIFIED'){
                     const notification = {
                         senderId: this.doctorID,
@@ -88,7 +97,12 @@ export class TInProgressComponent {
                         message: "Your appointment is confirmed by your doctor , please be on time !!",
                         type:"CONFIRMED"
                     }
-                    this.notificationService.sendNotification(notification);
+                    this.notificationService.sendNotification(notification).subscribe({
+                        next:(res:any)=>{
+                            console.log("success");
+                            
+                        }
+                    });
                 }
             },
             complete: () => {

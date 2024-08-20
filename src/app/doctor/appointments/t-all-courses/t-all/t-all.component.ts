@@ -24,13 +24,17 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class TAllComponent {
     ELEMENT_DATA : any[] =[] ;
-    doctorID ="66b20b3baefd046b10d57ed6";
+    doctorID:any;
     displayedColumns: string[] = ['patient','appointmentDate','time', 'duration', 'status', 'type' , 'action'];
     dataSource = new MatTableDataSource<any>(this.ELEMENT_DATA);
     @ViewChild(MatPaginator) paginator: MatPaginator;
  
     constructor( public toster : ToastrService,private DoctorServes: DoctorServesService, private cdr: ChangeDetectorRef ,  public dialog: MatDialog , private snackBar: MatSnackBar) {}
     ngOnInit() {
+        if (localStorage.hasOwnProperty('userID')) {
+            this.doctorID = localStorage.getItem('userID');
+            console.log('doctor id', this.doctorID);
+        }
         this.LoadAppointment(this.doctorID);
     }
 

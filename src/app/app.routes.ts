@@ -30,6 +30,7 @@ import{AvailabilityComponent} from './doctor/availability/availability.component
 import {AvailabilityCalenderComponent} from './doctor/availability/availability-calender/availability-calender.component';
 import {AvailabilityTableComponent} from './doctor/availability/availability-table/availability-table.component';
 import {NotificationComponent} from './common/notification/notification.component';
+import {DoctorCardsComponent} from './doctor/doctor-cards/doctor-cards.component';
 
 export const routes: Routes = [
     {path: '', component: LandingPageComponent},
@@ -58,6 +59,8 @@ export const routes: Routes = [
   //notifs path
   {path:'notifications', component:NotificationComponent},
 
+  {path:'doctors', component:DoctorCardsComponent},
+
 //doctor routes
    {path:'doctor' , component:DoctorComponent, canActivate: [authGuard],data: { role: ['DOCTOR']} ,
     children:[
@@ -67,8 +70,9 @@ export const routes: Routes = [
             children:[
                 {path:'calender',component:AvailabilityCalenderComponent},
                 {path:'availabilitytTable',component:AvailabilityTableComponent},
-            ]
-        }
+            ],
+        },
+        
     ]
    },
 

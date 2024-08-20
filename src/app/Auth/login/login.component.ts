@@ -38,11 +38,14 @@ export class LoginComponent {
 
         const decodedToken =helper.decodeToken(response['accessToken']); 
         const userRole = decodedToken.UserInfo.role;
+        const id = decodedToken.UserInfo.id
         console.log("user role",userRole)
+        localStorage.setItem('userID', id);
         // Get the required roles from the route data
         if (userRole === 'ADMIN') {
           this.router.navigateByUrl('/ecommerce');
         } else if (userRole === 'PATIENT') {
+          
           this.router.navigateByUrl('/patient-dashboard');
         } else {
           this.router.navigateByUrl('/home');

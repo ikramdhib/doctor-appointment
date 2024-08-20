@@ -18,10 +18,14 @@ export class NotificationComponent {
   constructor(private notificationService: NotificationService,
     public toster : ToastrService,
     private cdr: ChangeDetectorRef ) { 
-    this.userID='66b4f44ca1e639b6cb2304fd';
+   
   }
 
   ngOnInit(): void {
+    if (localStorage.hasOwnProperty('userID')) {
+      this.userID = localStorage.getItem('userID');
+      console.log('doctor id', this.userID);
+  }
     this.getNotifications(this.userID);
   }
 

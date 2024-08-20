@@ -38,5 +38,10 @@ export class DoctorServesService {
   changeAppointmentDate(appointmentID:any , appointmentDate:any){
     return this.http.put(`${this.API_RL}appointment/changeDate/${appointmentID}`,{appointmentDate : appointmentDate});
   }
+  getAllDoctors(){
+     return this.http.get(`${this.API_RL}appointment/all/doctors`);
+  }
+
+  
 
 }

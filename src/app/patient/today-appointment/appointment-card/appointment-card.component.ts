@@ -37,7 +37,10 @@ export class AppointmentCardComponent {
     }
 
     ngOnInit(): void {
-      this.patientID = '66afd28847bfaee53e8d6a56'; // Remplacez par l'ID du patient actuel
+      if (localStorage.hasOwnProperty('userID')) {
+        this.patientID = localStorage.getItem('userID');
+        console.log('patient id', this.patientID);
+    }
       this.PatientServes.getTodayAppointments(this.patientID).subscribe((appointments: any[]) => {
         if (appointments.length > 0) {
           this.appointment = appointments[0]; // Prenez le premier rendez-vous, si plusieurs, adaptez selon votre logique

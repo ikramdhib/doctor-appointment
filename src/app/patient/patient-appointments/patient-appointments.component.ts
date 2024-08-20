@@ -25,7 +25,7 @@ import { NotificationService } from '../../common/header/notificationServices/no
 })
 export class PatientAppointmentsComponent {
   ELEMENT_DATA : any[] =[] ;
-  patientID ="66b4f44ca1e639b6cb2304fd";
+  patientID :any;
   displayedColumns: string[] = [ 'doctor', 'appointmentDate', 'time', 'type', 'status','action'];
   dataSource = new MatTableDataSource<any>(this.ELEMENT_DATA);
 
@@ -36,6 +36,10 @@ export class PatientAppointmentsComponent {
      public dialog: MatDialog ,private PatientServes: PatientService, private cdr: ChangeDetectorRef ) {}
 
   ngOnInit() {
+    if (localStorage.hasOwnProperty('userID')) {
+      this.patientID = localStorage.getItem('userID');
+      console.log('patient id', this.patientID);
+  }
     this.LoadAppointment(this.patientID);
 }
   ngAfterViewInit() {
@@ -88,7 +92,12 @@ updateAppointmentStatus(appointmentID:any){
             message: "Your appointment is canceled , you can contact your patient ",
             type:"CANCELED"
         }
-        this.notificationService.sendNotification(notification);
+        this.notificationService.sendNotification(notification).subscribe({
+          next:(res:any)=>{
+            console.log("success");
+            
+          }
+        });
       },
       complete: () => {
           this.toster.success('Changed with success');

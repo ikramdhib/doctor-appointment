@@ -38,7 +38,6 @@ export class PatientComponent {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         console.log('Appointment processed:', result);
-        // Handle the result (e.g., send it to the server)
       }
     });
   }

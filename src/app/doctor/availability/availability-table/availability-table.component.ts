@@ -26,13 +26,17 @@ import { AddAvailabilityComponent } from '../add-availability/add-availability.c
 })
 export class AvailabilityTableComponent {
   ELEMENT_DATA : any[] =[] ;
-  doctorID ="66b20b3baefd046b10d57ed6";
+  doctorID :any;
   displayedColumns: string[] = ['date', 'details','actions'];
   dataSource = new MatTableDataSource<any>(this.ELEMENT_DATA);
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor( public AvailabilityService : AvailabilityService,public toster : ToastrService,public patientServices : PatientService, private cdr: ChangeDetectorRef ,  public dialog: MatDialog , private snackBar: MatSnackBar) {}
   ngOnInit() {
+    if (localStorage.hasOwnProperty('userID')) {
+      this.doctorID = localStorage.getItem('userID');
+      console.log('doctor id', this.doctorID);
+  }
     this.LoadAppointment(this.doctorID);
 }
 
