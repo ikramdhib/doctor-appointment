@@ -14,6 +14,7 @@ import { MatMenu, MatMenuModule, MatMenuTrigger  } from '@angular/material/menu'
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AvailabilityTableComponent} from '../availability-table/availability-table.component';
+import { AvailabilityService } from '../services/availability.service';
 
 @Component({
   selector: 'app-availability-calender',
@@ -50,7 +51,8 @@ export class AvailabilityCalenderComponent implements OnInit {
     eventClick: this.handleEventClick.bind(this) // Ajoutez cette ligne
   };
 
-  constructor(private dialog: MatDialog, private patientService: PatientService) {
+  constructor(private dialog: MatDialog, private patientService: PatientService , 
+    public availabilityservice : AvailabilityService) {
   }
 
   ngOnInit() {
@@ -58,7 +60,21 @@ export class AvailabilityCalenderComponent implements OnInit {
       this.doctorID = localStorage.getItem('userID');
       console.log('doctor id', this.doctorID);
   }
-    this.loadAvailabilities(this.doctorID);
+    this.deleteOldAvailabilities(this.doctorID);
+      this.loadAvailabilities(this.doctorID);
+
+    this.availabilityservice.availabilityAdded$.subscribe(newAvailability => {
+      const newEvent = this.formatEvents([newAvailability]);
+      this.calendarComponent.getApi().addEvent(newEvent[0]);
+      console.log('Disponibilité ajoutée au calendrier:', newEvent[0]);
+    });
+  }
+  deleteOldAvailabilities(id:any){
+    this.availabilityservice.deleteOldAvailabilities(id).subscribe(
+    (res:any)=>{
+        this.loadAvailabilities(this.doctorID)
+    }
+    );
   }
 
   getColorByMode(mode: string): string {
@@ -75,16 +91,19 @@ export class AvailabilityCalenderComponent implements OnInit {
     this.isCalendarVisible = !this.isCalendarVisible;
   }
   
-
   handleDateClick(arg: any) {
     console.log('Date clicked:', arg.dateStr);
     this.dialog.open(AddAvailabilityComponent, {
       width: '400px',
       data: { date: arg.dateStr }
     }).afterClosed().subscribe(result => {
-      console.log('Dialog result:', result);
+      if (result) {
+        this.loadAvailabilities(this.doctorID);
+        this.availabilityservice.announceAvailability(result.availability);
+        console.log('Nouvelle disponibilité annoncée:', result.availability);
+      }
     });
-  }
+}
 
   formatEvents(availabilities: any[]): any[] {
     return availabilities.flatMap(avail =>
@@ -139,11 +158,14 @@ export class AvailabilityCalenderComponent implements OnInit {
         const events = this.formatEvents(res.availabilities);
         console.log('Loaded events:', events); // Ajouter ceci
         this.calendarOptions.events = events;
-  
-        if (this.calendarComponent) {
-          this.calendarComponent.getApi().removeAllEvents(); // Nettoyer les anciens événements
-          this.calendarComponent.getApi().addEventSource(events); // Ajouter les nouveaux événements
-        }
+
+
+      // Effacer les anciens événements
+      const calendarApi = this.calendarComponent.getApi();
+      calendarApi.removeAllEvents();
+
+      // Ajouter les nouveaux événements
+      calendarApi.addEventSource(events);
       },
     });
   }

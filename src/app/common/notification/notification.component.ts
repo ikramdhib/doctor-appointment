@@ -39,8 +39,9 @@ export class NotificationComponent {
   deleteNotification(){
     this.notificationService.deleteAll(this.userID).subscribe({
         next: () => {
-            this.toster.success('All notifications deleted');
-            this.cdr.detectChanges();
+          this.notifications = []; 
+          this.toster.success('All notifications are deleted');
+          this.cdr.detectChanges();
           },
           error: () => {
             this.toster.error('Error deleting notifications');

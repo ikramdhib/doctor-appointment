@@ -1,5 +1,5 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
-import { FullCalendarModule } from '@fullcalendar/angular'; 
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular'; 
 import dayGridPlugin from '@fullcalendar/daygrid'; 
 import timeGridPlugin from '@fullcalendar/timegrid'; 
 import interactionPlugin from '@fullcalendar/interaction'; 
@@ -22,6 +22,8 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./calendrier.component.scss']
 })
 export class CalendrierComponent {
+
+  @ViewChild(FullCalendarComponent, { static: false }) calendarComponent: FullCalendarComponent; 
 
   colorPalette = [
     { status: 'PLANIFIED', color: '#007bff' },
@@ -79,6 +81,9 @@ export class CalendrierComponent {
         textColor: '#ffffff',
         editable: this.isEventEditable(appointment.status),
       }));
+      this.cdr.detectChanges();
+        this.calendarComponent.getApi().refetchEvents();
+
     });
   }
 
@@ -91,33 +96,37 @@ export class CalendrierComponent {
 
   renderEventContent(eventInfo: any): any {
     return {
+
       html: `
-        <div style="
-          background-color: ${eventInfo.event.backgroundColor};
-          border-radius: 6px;
-          color: ${eventInfo.event.textColor};
-          padding: 5px;
-          font-size: 12px;
-          text-align: center;
-          ">
-          ${eventInfo.event.title}
-        </div>
-      `
+      <div style="
+        background-color: ${eventInfo.event.backgroundColor};
+        border-radius: 6px;
+        color: ${eventInfo.event.textColor};
+        padding: 5px;
+        font-size: 12px;
+        text-align: center;
+        overflow: hidden;
+        white-space: normal;
+        " 
+        (click)="openContextMenu($event, eventInfo.event)">
+        ${eventInfo.event.title}
+      </div>
+    `
     };
   }
 
   getColorByStatus(status: string): string {
     switch (status) {
       case 'PLANIFIED':
-        return '#007bff'; // Bleu
+        return '#007bff'; 
       case 'FINISHED':
-        return '#28a745'; // Vert
+        return '#28a745'; 
       case 'CANCLED':
-        return '#dc3545'; // Rouge
+        return '#dc3545'; 
       case 'UNPLANNED':
-        return '#6c757d'; // Gris
+        return '#6c757d'; 
       default:
-        return '#007bff'; // Bleu par défaut
+        return '#007bff'; 
     }
   }
 
@@ -126,20 +135,36 @@ export class CalendrierComponent {
     return status === 'UNPLANNED' || status === 'PLANIFIED';
   }
 
+ 
   handleDateClick(arg: any): void {
-    const dialogRef = this.dialog.open(AddAppointmentDoctorComponent, {
-      width: '300px',
+    this.dialog.open(AddAppointmentDoctorComponent, {
+      width: '350px',
       data: { date: arg.dateStr }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
+    }).afterClosed().subscribe(result => {
       if (result) {
-        // Handle saving the appointment here
-        console.log('The appointment was saved with the following details:', result);
-        this.loadAppointments(this.doctorID);
-        this.cdr.detectChanges();
+        const newEvent = {
+          id: result._id,
+          title: `${result.type} (${this.formatTime(new Date(result.dateAppointment))})`,
+          start: new Date(result.dateAppointment).toISOString(),
+          backgroundColor: this.getColorByStatus(result.status),
+          borderColor: this.getColorByStatus(result.status),
+          textColor: '#ffffff',
+          editable: this.isEventEditable(result.status),
+        };
+
+        this.addEventToCalendar(newEvent);
       }
     });
+  }
+
+  addEventToCalendar(event: any): void {
+    if (this.calendarComponent) {
+      this.loadAppointments(this.doctorID)
+      const calendarApi = this.calendarComponent.getApi();
+      calendarApi.addEvent(event);
+      // Rafraîchir le calendrier pour refléter les changements
+      calendarApi.refetchEvents();
+    }
   }
 
   handleEventDrop(info: any): void {
@@ -155,7 +180,6 @@ export class CalendrierComponent {
     },
     (error) => {
       console.error('Error updating appointment date:', error);
-      // Vous pouvez annuler le déplacement de l'événement en cas d'erreur
       info.revert();
     }
   );

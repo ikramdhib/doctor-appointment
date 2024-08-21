@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Subject } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
@@ -40,6 +41,14 @@ export class DoctorServesService {
   }
   getAllDoctors(){
      return this.http.get(`${this.API_RL}appointment/all/doctors`);
+  }
+
+  private availabilityAddedSource = new Subject<any>();
+
+  availabilityAdded$ = this.availabilityAddedSource.asObservable();
+
+  announceAvailability(availability: any) {
+    this.availabilityAddedSource.next(availability);
   }
 
   

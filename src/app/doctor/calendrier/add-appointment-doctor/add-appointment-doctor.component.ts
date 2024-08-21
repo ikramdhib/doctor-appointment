@@ -60,13 +60,15 @@ export class AddAppointmentDoctorComponent {
   }
 
   ngOnInit(): void {
-  
-    const selectedDate = new Date(this.appointmentForm.get('date').value).toISOString().split('T')[0];
-    this.getAppointmentsInthSameDate(this.doctorID, selectedDate);
+
     if (localStorage.hasOwnProperty('userID')) {
       this.doctorID = localStorage.getItem('userID');
       console.log('doctor id', this.doctorID);
   }
+  
+    const selectedDate = new Date(this.appointmentForm.get('date').value).toISOString().split('T')[0];
+    this.getAppointmentsInthSameDate(this.doctorID, selectedDate);
+    
      
   }
   onNoClick(): void {
