@@ -28,8 +28,4 @@ export class AvailabilityService {
   editAvailability(id:any,availabilityData:any){
     return this.http.put(`${this.API_RL}availability/editAvailability/${id}`, availabilityData);
   }
-  deleteOldAvailabilities(id:any){
-    return this.http.delete(`${this.API_RL}availability/delete/old/one/${id}`);
-  }
- 
 }

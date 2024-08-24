@@ -53,4 +53,7 @@ h1[mat-dialog-title] {
       background-color: #e2e6ea; // Slightly darker gray for hover effect
     }
   }
+  .mat-datepicker-content {
+    z-index: 1000; /* Assurez-vous que le calendrier est au-dessus des autres éléments */
+  }
   

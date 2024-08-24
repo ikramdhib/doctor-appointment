@@ -10,9 +10,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { AddAppointmentDoctorComponent } from './add-appointment-doctor/add-appointment-doctor.component';
 import { MatDialog } from '@angular/material/dialog';
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
+import { AppointmnetDetailComponent } from'../appointmnet-detail/appointmnet-detail.component'
 
 @Component({
   selector: 'app-calendrier',
@@ -33,6 +32,7 @@ export class CalendrierComponent {
   ];
 
   doctorID :any;
+  appointmentData:any ;
 
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -55,6 +55,7 @@ export class CalendrierComponent {
     },
     events: [], // Les événements seront ajoutés ici
     eventContent: this.renderEventContent,
+    eventClick: this.openAppointmentDetails.bind(this), 
     dateClick: this.handleDateClick.bind(this),
     editable: true, // Permet le glisser-déposer
     eventDrop: this.handleEventDrop.bind(this), // Gère le déplacement d'un événement
@@ -87,6 +88,29 @@ export class CalendrierComponent {
     });
   }
 
+  openAppointmentDetails(event: any): void {
+ 
+     this.doctorService.getAppointmentDetails(event.event.id).subscribe(
+      (res:any)=>{
+        console.log(res,"*****************");
+        
+        this.appointmentData= res;
+
+        if (this.appointmentData) {
+     
+      
+          this.dialog.open(AppointmnetDetailComponent, {
+            width: '400px',
+            data: { appointment: this.appointmentData } // Transmettre les données correctement
+          });
+        } else {
+          console.error('Appointment data not found for event ID:', event.event.id);
+        }
+      },
+     )
+
+  }
+
   formatTime(date: Date): string {
     // Format the time in UTC
     const hours = date.getUTCHours().toString().padStart(2, '0');
@@ -108,7 +132,7 @@ export class CalendrierComponent {
         overflow: hidden;
         white-space: normal;
         " 
-        (click)="openContextMenu($event, eventInfo.event)">
+        (click)="openAppointmentDetails($event, eventInfo.event)">
         ${eventInfo.event.title}
       </div>
     `

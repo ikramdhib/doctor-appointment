@@ -9,7 +9,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
@@ -22,11 +22,22 @@ import  moment from 'moment';
 import { DoctorServesService } from '../../doctorServes/doctor-serves.service';
 import { ToastrService } from 'ngx-toastr';
 import { NotificationService } from '../../../common/header/notificationServices/notification.service';
+import { DateAdapter } from '@angular/material/core';
+
+import { RouterLink } from '@angular/router';
+import { NgxEditorModule, Editor, Toolbar } from 'ngx-editor';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { FileUploadModule } from '@iplab/ngx-file-upload';
+
+
+
+
 
 @Component({
   selector: 'app-add-appointment-doctor',
   standalone: true,
-  imports: [MatSelectModule,MatButtonToggleModule,ReactiveFormsModule,FormsModule,MatMenuModule,MatCardModule,CommonModule,MatNativeDateModule,MatDatepickerModule,MatButtonModule,MatStepperModule,MatDialogModule,MatFormFieldModule,MatInputModule,MatRadioModule],
+  providers: [provideNativeDateAdapter()],
+  imports: [FileUploadModule,NgxEditorModule,MatSelectModule,MatButtonToggleModule,ReactiveFormsModule,FormsModule,MatMenuModule,MatCardModule,CommonModule,MatNativeDateModule,MatDatepickerModule,MatButtonModule,MatStepperModule,MatDialogModule,MatFormFieldModule,MatInputModule,MatRadioModule],
   templateUrl: './add-appointment-doctor.component.html',
   styleUrl: './add-appointment-doctor.component.scss'
 })
@@ -38,6 +49,9 @@ export class AddAppointmentDoctorComponent {
   availableTimes: string[] = [];
   appointments :any[];
   doctorID  : any;
+  isUpdateMode: boolean = false;
+  appointmentId: string;
+  minDate: Date;
 
   constructor(
     private fb: FormBuilder,
@@ -49,15 +63,43 @@ export class AddAppointmentDoctorComponent {
     public toster : ToastrService,
     public notificationService : NotificationService
   ) {
-    this.appointmentForm = this.fb.group({
-      date: [{ value: data.date, disabled: true }, Validators.required],
-      mode: ['', Validators.required],
-      time: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]] 
-    });
-
-    
+    this.minDate = new Date();
   }
+
+  onDateChange(event: any): void {
+    const selectedDate = new Date(event.value);
+    console.log("Selected Date:", selectedDate); // Pour vérifier la valeur de selectedDate
+    if (selectedDate instanceof Date && !isNaN(selectedDate.getTime())) {
+        this.getAppointmentsInthSameDate(this.doctorID, selectedDate.toISOString().split('T')[0]);
+
+        setTimeout(() => {
+            this.filterAvailableTimes();
+        }, 100);
+    } else {
+        console.error("Invalid date:", selectedDate);
+    }
+}
+
+
+  
+
+  loadExistingAppointment(data: any): void {
+    this.appointmentForm.patchValue({
+      date: new Date(data.date), // Assurez-vous d'utiliser `data.dateAppointment`
+      mode: data.mode,
+      time: this.formatTime(data.time),
+      email: data.email
+    });
+    this.cdr.detectChanges();
+    console.log('Loaded Appointment:', this.appointmentForm.value);
+  }
+
+  formatTime(dateAppointment: string): string {
+    const appointmentTime = new Date(dateAppointment);
+    const hours = appointmentTime.getUTCHours().toString().padStart(2, '0');
+    const minutes = appointmentTime.getUTCMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+}
 
   ngOnInit(): void {
 
@@ -65,60 +107,75 @@ export class AddAppointmentDoctorComponent {
       this.doctorID = localStorage.getItem('userID');
       console.log('doctor id', this.doctorID);
   }
+
+   this.isUpdateMode = !!this.data.appointmentId;
   
-    const selectedDate = new Date(this.appointmentForm.get('date').value).toISOString().split('T')[0];
-    this.getAppointmentsInthSameDate(this.doctorID, selectedDate);
-    
-     
+   this.appointmentForm = this.fb.group({
+    date: [{ value: this.isUpdateMode ? new Date(this.data.date) : this.data.date, disabled: !this.isUpdateMode }, Validators.required],
+    mode: [this.data.mode || '', Validators.required],
+    time: [this.data.time || '', Validators.required],
+    email: [this.data.email || '', [Validators.required, Validators.email]]
+  });
+  
+  this.appointmentForm.get('date').valueChanges.subscribe(selectedDate => {
+    if (selectedDate) {
+      this.getAppointmentsInthSameDate(this.doctorID, selectedDate);
+    }
+  });
+
+  if (this.isUpdateMode) {
+    this.loadExistingAppointment(this.data);
+    this.appointmentForm.get('date').enable();
+  } else {
+    this.appointmentForm.patchValue({ date: this.data.date });
+    this.appointmentForm.get('date').disable();
+  }
   }
   onNoClick(): void {
     this.dialogRef.close();
   }
+  generateTimeSlots(start: string, end: string, interval: number, existingAppointments: any[]): string[] {
+    const times = [];
+    const startTime = new Date(`1970-01-01T${start}:00Z`); // Heure de début
+    const endTime = new Date(`1970-01-01T${end}:00Z`); // Heure de fin
   
-  // Method to generate time slots
-generateTimeSlots(start: string, end: string, interval: number, existingAppointments: any[]): string[] {
-  const times = [];
-  const startTime = new Date(`1970-01-01T${start}:00Z`); // Use 'Z' to set timezone to UTC
-  const endTime = new Date(`1970-01-01T${end}:00Z`);
-
-  for (let currentTime = startTime; currentTime <= endTime; currentTime.setMinutes(currentTime.getMinutes() + interval)) {
-    const hours = currentTime.getUTCHours().toString().padStart(2, '0');
-    const minutes = currentTime.getUTCMinutes().toString().padStart(2, '0');
-    const timeSlot = `${hours}:${minutes}`;
-
-    // Filter out occupied times
-    const isOccupied = existingAppointments.some(appointment => {
-      const appointmentTime = new Date(appointment.dateAppointment);
-      const appointmentHours = appointmentTime.getUTCHours().toString().padStart(2, '0');
-      const appointmentMinutes = appointmentTime.getUTCMinutes().toString().padStart(2, '0');
-      return `${appointmentHours}:${appointmentMinutes}` === timeSlot;
-    });
-
-    if (!isOccupied) {
-      times.push(timeSlot);
-    }
-  }
-
-  return times;
-}
-  getAppointmentsInthSameDate(doctorID: string, date: any): void {
-    const dateIsoString = new Date(date).toISOString().split('T')[0];
-
-    this.PatientServces.getAppointmentAvailibilitiesDoctor(doctorID, dateIsoString).subscribe({
-      next: (res: any) => {
-        this.appointments = res;
-        // Update the available times based on existing appointments
-        this.times = this.generateTimeSlots('08:00', '18:00', 60, this.appointments);
-        this.cdr.detectChanges(); // Force change detection
-      },
-      complete: () => {
-        console.log('Filtered Available Times:', this.times);
+    for (let currentTime = startTime; currentTime <= endTime; currentTime.setMinutes(currentTime.getMinutes() + interval)) {
+      const hours = currentTime.getUTCHours().toString().padStart(2, '0');
+      const minutes = currentTime.getUTCMinutes().toString().padStart(2, '0');
+      const timeSlot = `${hours}:${minutes}`;
+  
+      const isOccupied = existingAppointments.some(appointment => {
+        const appointmentTime = new Date(appointment.dateAppointment);
+        const appointmentHours = appointmentTime.getUTCHours().toString().padStart(2, '0');
+        const appointmentMinutes = appointmentTime.getUTCMinutes().toString().padStart(2, '0');
+        return `${appointmentHours}:${appointmentMinutes}` === timeSlot;
+      });
+  
+      if (!isOccupied) {
+        times.push(timeSlot);
       }
-    });
+    }
+  
+    return times;
   }
+  
+getAppointmentsInthSameDate(doctorID: string, date: any): void {
+  const dateIsoString = new Date(date).toISOString().split('T')[0];
 
- // Method to filter available times
- filterAvailableTimes(): void {
+  this.PatientServces.getAppointmentAvailibilitiesDoctor(doctorID, dateIsoString).subscribe({
+    next: (res: any) => {
+      this.appointments = res;
+      this.times = this.generateTimeSlots('08:00', '18:00', 60, this.appointments);
+      this.filterAvailableTimes();
+      this.cdr.detectChanges(); // Force change detection
+    },
+    complete: () => {
+      console.log('Filtered Available Times:', this.times);
+    }
+  });
+}
+
+filterAvailableTimes(): void {
   const selectedDate = new Date(this.appointmentForm.get('date').value).toISOString().split('T')[0];
 
   this.availableTimes = this.times.filter(time => {
@@ -129,59 +186,84 @@ generateTimeSlots(start: string, end: string, interval: number, existingAppointm
     });
   });
 
-  // Debugging logs to check the filtered times
-  console.log('Times:', this.times);
-  console.log('Available Times:', this.availableTimes);
+  console.log('Times:', this.times); // Assurez-vous que `this.times` est correctement généré
+  console.log('Available Times:', this.availableTimes); // Vérifiez le contenu de `availableTimes`
   console.log('Appointments:', this.appointments);
 }
+
 // Function to add an appointment
 addAppointment(): void {
   if (this.appointmentForm.valid) {
     const formValue = this.appointmentForm.value;
-   // const appointmentDateTime = `${formValue.date}T${formValue.time}:00Z`; // Format the date and time in UTC
-console.log(this.appointmentForm.get('date').value);
-console.log( formValue.time);
-console.log(formValue.mode);
-console.log(formValue.email);
+    
+    const selectedDate = this.appointmentForm.get('date').value;
 
+   
+    if (this.isUpdateMode) {
+      console.log("////////////////", selectedDate)
 
-    this.DoctorServes.scheduleAppointment(
-      this.doctorID,
-      this.appointmentForm.get('date').value,
-      formValue.time,
-      formValue.mode,
-      formValue.email
-    ).subscribe({
-      next: (res:any) => {
-        console.log('Appointment successfully scheduled.');
-        const notification = {
-          senderId: this.doctorID,
-          recipientId:res.patient,
-          appointmentId:res._id,
-          message: "You have a new appointment scheduled by your doctor , please be on time !!",
-          type:"ADDED"
-      }
-      this.notificationService.sendNotification(notification).subscribe({
-        next:(res:any)=>{
-          console.log("success");
-          
+      // Formater la date au format YYYY-MM-DD sans décalage UTC
+      const year = selectedDate.getFullYear();
+      const month = ('0' + (selectedDate.getMonth() + 1)).slice(-2); // Les mois commencent à 0
+      const day = ('0' + selectedDate.getDate()).slice(-2);
+      const formattedDate = `${year}-${month}-${day}`;
+      console.log("////////////////", formattedDate)
+      console.log(this.data.appointmentId, "***");
+      console.log(formattedDate, "***");
+      console.log(formValue.time, "***");
+      console.log(formValue.mode, "***");
+
+      // Logique pour mettre à jour le rendez-vous existant
+      this.PatientServces.rescheduleAppointment(
+        this.data.appointmentId,
+        formattedDate,
+        formValue.time,
+        formValue.mode,
+      ).subscribe({
+        next: (res: any) => {
+          this.toster.success('Appointment updated successfully');
+          const notification = {
+            senderId: this.doctorID,
+            recipientId: res.patient,
+            appointmentId: res._id,
+            message: "Your appointment has been updated by you Dr , please check your appointment scheduler",
+            type: "UPDATED"
+          };
+          this.notificationService.sendNotification(notification).subscribe();
+          this.dialogRef.close(res);
+        },
+      });
+    } else {
+      console.log("////////////////", selectedDate)
+
+      // Logique pour créer un nouveau rendez-vous
+      this.DoctorServes.scheduleAppointment(
+        this.doctorID,
+        selectedDate,
+        formValue.time,
+        formValue.mode,
+        formValue.email
+      ).subscribe({
+        next: (res: any) => {
+          this.toster.success('Appointment added successfully');
+          const notification = {
+            senderId: this.doctorID,
+            recipientId: res.patient,
+            appointmentId: res._id,
+            message: "You have a new appointment scheduled by your doctor, please be on time!",
+            type: "ADDED"
+          };
+          this.notificationService.sendNotification(notification).subscribe();
+          this.dialogRef.close(res);
+        },
+        error: (err) => {
+          this.toster.error("Error scheduling appointment");
         }
       });
-      },
-      error: (err) => {
-        this.toster.error("Error scheduling appointment")
-        console.error('Error scheduling appointment:', err);
-      },
-      complete:()=>{
-        this.toster.success('Added with success')
-        this.dialogRef.close();
-      }
-    });
+    }
   } else {
     console.log('Form is invalid.');
   }
 }
-
-
-
 }
+

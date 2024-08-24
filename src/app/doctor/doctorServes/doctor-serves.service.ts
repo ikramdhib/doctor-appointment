@@ -43,12 +43,9 @@ export class DoctorServesService {
      return this.http.get(`${this.API_RL}appointment/all/doctors`);
   }
 
-  private availabilityAddedSource = new Subject<any>();
-
-  availabilityAdded$ = this.availabilityAddedSource.asObservable();
-
-  announceAvailability(availability: any) {
-    this.availabilityAddedSource.next(availability);
+ 
+  getAppointmentDetails(id){
+    return this.http.get(`${this.API_RL}appointment/appointmentDetails/${id}`);
   }
 
   

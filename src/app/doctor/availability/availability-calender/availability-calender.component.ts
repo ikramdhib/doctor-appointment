@@ -60,7 +60,6 @@ export class AvailabilityCalenderComponent implements OnInit {
       this.doctorID = localStorage.getItem('userID');
       console.log('doctor id', this.doctorID);
   }
-    this.deleteOldAvailabilities(this.doctorID);
       this.loadAvailabilities(this.doctorID);
 
     this.availabilityservice.availabilityAdded$.subscribe(newAvailability => {
@@ -68,13 +67,6 @@ export class AvailabilityCalenderComponent implements OnInit {
       this.calendarComponent.getApi().addEvent(newEvent[0]);
       console.log('Disponibilité ajoutée au calendrier:', newEvent[0]);
     });
-  }
-  deleteOldAvailabilities(id:any){
-    this.availabilityservice.deleteOldAvailabilities(id).subscribe(
-    (res:any)=>{
-        this.loadAvailabilities(this.doctorID)
-    }
-    );
   }
 
   getColorByMode(mode: string): string {

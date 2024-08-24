@@ -13,8 +13,11 @@ import { NgIf } from '@angular/common';
 import {DialogComponent} from '../../../dialog/dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import{AddAppointmentComponent} from '../../../../patient/add-appointment/add-appointment.component';
 import { ToastrService } from 'ngx-toastr';
+import { AddAppointmentDoctorComponent } from '../../../calendrier/add-appointment-doctor/add-appointment-doctor.component';
+import { log } from 'console';
+
+
 @Component({
     selector: 'app-t-all',
     standalone: true,
@@ -29,7 +32,9 @@ export class TAllComponent {
     dataSource = new MatTableDataSource<any>(this.ELEMENT_DATA);
     @ViewChild(MatPaginator) paginator: MatPaginator;
  
-    constructor( public toster : ToastrService,private DoctorServes: DoctorServesService, private cdr: ChangeDetectorRef ,  public dialog: MatDialog , private snackBar: MatSnackBar) {}
+    constructor( public toster : ToastrService,private DoctorServes: DoctorServesService,
+         private cdr: ChangeDetectorRef ,  public dialog: MatDialog ,
+          private snackBar: MatSnackBar) {}
     ngOnInit() {
         if (localStorage.hasOwnProperty('userID')) {
             this.doctorID = localStorage.getItem('userID');
@@ -92,39 +97,36 @@ export class TAllComponent {
         });
       }
 
-
-
-openAppointmentDialog(appointment: any = null): void {
+ openUpdateDialog(appointment:any): void {
     let appointmentTime: string | null = null;
-let appointmentDate: string | null = null;
+    let appointmentDate: string | null = null;
 
 if (appointment) {
   const dateTime = new Date(appointment.dateAppointment);
   // Formater la date et l'heure
   appointmentDate = dateTime.toISOString().split('T')[0]; // 'YYYY-MM-DD'
   appointmentTime = dateTime.toTimeString().split(' ')[0].substring(0, 5); // 'HH:MM'
+  
 }
+        const dialogRef = this.dialog.open(AddAppointmentDoctorComponent, {
+            
+          data: {
+            appointmentId: appointment._id,
+            date:appointmentDate,
+            time: appointmentTime,
+            mode: appointment.type,
+            email: appointment.patient.email,
+            patientId : appointment.patient._id
+          }
+        });
+      
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            console.log('Updated Appointment:', result);
+            // Actualisez la vue ou les données si nécessaire
+          }
+        });
+      }
 
-const dialogRef = this.dialog.open(AddAppointmentComponent, {
-  width: '500px',
-  data: appointment ? {
-    isUpdateMode: true,
-    appointmentId: appointment._id,
-    appointmentDate: appointmentDate,
-    appointmentMode: appointment.type,
-    appointmentTime: appointmentTime
-  } : {
-    isUpdateMode: false
-  }
-});
-dialogRef.afterClosed().subscribe(result => {
-    if (result) {
-      console.log('Appointment processed:', result);
-     this.LoadAppointment(this.doctorID);
-     this.cdr.detectChanges();
-    }
-  });
-
-}
 }
 
