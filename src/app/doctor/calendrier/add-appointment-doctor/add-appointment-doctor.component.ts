@@ -29,6 +29,7 @@ import { NgxEditorModule, Editor, Toolbar } from 'ngx-editor';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { FileUploadModule } from '@iplab/ngx-file-upload';
 
+import  {LoadingSpinnerComponent } from "../../../loading-spinner/loading-spinner.component";
 
 
 
@@ -37,11 +38,13 @@ import { FileUploadModule } from '@iplab/ngx-file-upload';
   selector: 'app-add-appointment-doctor',
   standalone: true,
   providers: [provideNativeDateAdapter()],
-  imports: [FileUploadModule,NgxEditorModule,MatSelectModule,MatButtonToggleModule,ReactiveFormsModule,FormsModule,MatMenuModule,MatCardModule,CommonModule,MatNativeDateModule,MatDatepickerModule,MatButtonModule,MatStepperModule,MatDialogModule,MatFormFieldModule,MatInputModule,MatRadioModule],
+  imports: [LoadingSpinnerComponent,FileUploadModule,NgxEditorModule,MatSelectModule,MatButtonToggleModule,ReactiveFormsModule,FormsModule,MatMenuModule,MatCardModule,CommonModule,MatNativeDateModule,MatDatepickerModule,MatButtonModule,MatStepperModule,MatDialogModule,MatFormFieldModule,MatInputModule,MatRadioModule],
   templateUrl: './add-appointment-doctor.component.html',
   styleUrl: './add-appointment-doctor.component.scss'
 })
 export class AddAppointmentDoctorComponent {
+
+  isLoading: boolean = true;
 
   appointmentForm: FormGroup;
   times: string[]; 
@@ -83,7 +86,7 @@ export class AddAppointmentDoctorComponent {
 
   
 
-  loadExistingAppointment(data: any): void {
+  loadExistingAppointment(data: any): void { 
     this.appointmentForm.patchValue({
       date: new Date(data.date), // Assurez-vous d'utiliser `data.dateAppointment`
       mode: data.mode,
@@ -130,6 +133,7 @@ export class AddAppointmentDoctorComponent {
     this.appointmentForm.patchValue({ date: this.data.date });
     this.appointmentForm.get('date').disable();
   }
+  this.isLoading=false;
   }
   onNoClick(): void {
     this.dialogRef.close();
@@ -193,6 +197,7 @@ filterAvailableTimes(): void {
 
 // Function to add an appointment
 addAppointment(): void {
+  this.isLoading=true;
   if (this.appointmentForm.valid) {
     const formValue = this.appointmentForm.value;
     
@@ -231,6 +236,7 @@ addAppointment(): void {
           };
           this.notificationService.sendNotification(notification).subscribe();
           this.dialogRef.close(res);
+          this.isLoading=false;
         },
       });
     } else {
@@ -255,9 +261,11 @@ addAppointment(): void {
           };
           this.notificationService.sendNotification(notification).subscribe();
           this.dialogRef.close(res);
+          this.isLoading=false;
         },
         error: (err) => {
           this.toster.error("Error scheduling appointment");
+          this.isLoading=false;
         }
       });
     }

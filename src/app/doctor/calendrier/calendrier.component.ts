@@ -12,11 +12,12 @@ import { AddAppointmentDoctorComponent } from './add-appointment-doctor/add-appo
 import { MatDialog } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { AppointmnetDetailComponent } from'../appointmnet-detail/appointmnet-detail.component'
+import  {LoadingSpinnerComponent } from "../../loading-spinner/loading-spinner.component";
 
 @Component({
   selector: 'app-calendrier',
   standalone: true,
-  imports: [CommonModule,FullCalendarModule, MatCardModule, MatButtonModule, MatMenuModule],
+  imports: [LoadingSpinnerComponent,CommonModule,FullCalendarModule, MatCardModule, MatButtonModule, MatMenuModule],
   templateUrl: './calendrier.component.html',
   styleUrls: ['./calendrier.component.scss']
 })
@@ -24,6 +25,7 @@ export class CalendrierComponent {
 
   @ViewChild(FullCalendarComponent, { static: false }) calendarComponent: FullCalendarComponent; 
 
+  isLoading: boolean = true;
   colorPalette = [
     { status: 'PLANIFIED', color: '#007bff' },
     { status: 'FINISHED', color: '#28a745' },
@@ -84,7 +86,7 @@ export class CalendrierComponent {
       }));
       this.cdr.detectChanges();
         this.calendarComponent.getApi().refetchEvents();
-
+        this.isLoading=false;
     });
   }
 
@@ -192,6 +194,8 @@ export class CalendrierComponent {
   }
 
   handleEventDrop(info: any): void {
+    
+    this.isLoading = true;
     console.log(info.event, '*******************************')
     // Récupérer l'ID du rendez-vous et la nouvelle date
   const appointmentID = info.event.id;
@@ -201,10 +205,13 @@ export class CalendrierComponent {
   this.doctorService.changeAppointmentDate(appointmentID, newDate).subscribe(
     (response) => {
       console.log('Appointment date updated successfully:', response);
+      
+    this.isLoading = false;
     },
     (error) => {
       console.error('Error updating appointment date:', error);
       info.revert();
+      this.isLoading = false;
     }
   );
   }

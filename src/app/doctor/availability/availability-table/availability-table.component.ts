@@ -16,16 +16,18 @@ import { ToastrService } from 'ngx-toastr';
 import { MatCardModule } from '@angular/material/card';
 import { DialogComponent } from '../../dialog/dialog.component';
 import { AddAvailabilityComponent } from '../add-availability/add-availability.component';
+import  {LoadingSpinnerComponent } from "../../../loading-spinner/loading-spinner.component";
 
 @Component({
   selector: 'app-availability-table',
   standalone: true,
-  imports: [MatCardModule,MatTableModule,MatButtonModule,MatSortModule,MatTableModule,CommonModule,MatPaginatorModule],
+  imports: [LoadingSpinnerComponent,MatCardModule,MatTableModule,MatButtonModule,MatSortModule,MatTableModule,CommonModule,MatPaginatorModule],
   templateUrl: './availability-table.component.html',
   styleUrl: './availability-table.component.scss'
 })
 export class AvailabilityTableComponent {
   ELEMENT_DATA : any[] =[] ;
+  isLoading: boolean = true;
   doctorID :any;
   displayedColumns: string[] = ['date', 'details','actions'];
   dataSource = new MatTableDataSource<any>(this.ELEMENT_DATA);
@@ -50,31 +52,30 @@ ngAfterViewInit() {
             this.ELEMENT_DATA = res.availabilities;
             this.dataSource.data = this.ELEMENT_DATA;
             console.log(res);
-        },
-        complete: () => {
-            console.log("complete");
             this.cdr.detectChanges();
+            this.isLoading=false;
         },
         error: (err) => {
             console.error('Erreur:', err);
+            this.isLoading=false;
         }
     });
 }
 
 //delet pointment
 deleteAvailabilitywithID(id:any){
+  this.isLoading=true;
   console.log(id,"zzzzzzzzzzzzzzz")
   this.AvailabilityService.deleteAvailability(id).subscribe({
       next: (res: any) => {
           this.LoadAppointment(this.doctorID);
-      },
-      complete: () => {
-          this.toster.success("Deleted with success")
+          this.isLoading=false;
           this.cdr.detectChanges();
       },
       error: (err) => {
           this.toster.error("Something went wrong");
           console.error('Erreur:', err);
+          this.isLoading=false;
       }
   });
 }

@@ -23,11 +23,12 @@ import { FeathericonsModule } from '../../apps/icons/feathericons/feathericons.m
 import { PatientService } from '../serves/patient.service';
 import { ToastrService } from 'ngx-toastr';
 import { NotificationService } from '../../common/header/notificationServices/notification.service';
+import  {LoadingSpinnerComponent } from "../../loading-spinner/loading-spinner.component";
 
 @Component({
   selector: 'app-add-appointment',
   standalone: true,
-  imports: [FeathericonsModule,FileUploadModule,MatSelectModule,NgxEditorModule,FormsModule,RouterLink,MatMenuModule,MatCardModule,ReactiveFormsModule,CommonModule,MatDialogModule,MatStepperModule,MatButtonModule,MatDatepickerModule,MatFormFieldModule,MatInputModule, MatRadioModule,MatNativeDateModule],
+  imports: [LoadingSpinnerComponent,FeathericonsModule,FileUploadModule,MatSelectModule,NgxEditorModule,FormsModule,RouterLink,MatMenuModule,MatCardModule,ReactiveFormsModule,CommonModule,MatDialogModule,MatStepperModule,MatButtonModule,MatDatepickerModule,MatFormFieldModule,MatInputModule, MatRadioModule,MatNativeDateModule],
   templateUrl: './add-appointment.component.html',
   providers: [provideNativeDateAdapter()],
   styleUrl: './add-appointment.component.scss'
@@ -36,6 +37,8 @@ export class AddAppointmentComponent {
 
   minDate: Date;
   doctorId:any;
+
+  isLoading: boolean = true;
 
   dateAvailibilty:any[];
   availableDates: Set<number> = new Set<number>();
@@ -125,7 +128,7 @@ export class AddAppointmentComponent {
         this.availableTimes = this.availableTimes || [];
       }
     }
-    
+    this.isLoading=false;
     
 }
 
@@ -144,7 +147,7 @@ export class AddAppointmentComponent {
 
 //extrait les disponiblité
   getAvailibilityOfDoctor(id:any){
-
+    this.isLoading=true;
      this.PatientServes.getdoctorDetailsWithAvailibities(id).subscribe({
     next: (res: any) => {
       console.log('Doctor Availability Data:', res);
@@ -173,8 +176,9 @@ export class AddAppointmentComponent {
               this.inPersonTimes[dateString] = timesArray;
             }
           }
+          
         });
-        
+        this.isLoading=false;
       });
       
       console.log('Online Times:', this.onlineTimes);
@@ -185,6 +189,7 @@ export class AddAppointmentComponent {
     },
     error: (err) => {
       console.error('Erreur:', err);
+      this.isLoading=false;
     }
   });
 
@@ -269,6 +274,7 @@ export class AddAppointmentComponent {
   }
 
   confirm(): void {
+    this.isLoading=true;
     console.log(this.isFormValid)
     if (this.isFormValid()) {
       const dateTime = this.selectedDate;
@@ -300,10 +306,12 @@ export class AddAppointmentComponent {
                 console.log("success");
               }
              });
+             this.isLoading=false;
           },
           error:(error) => {
             console.error('Error updating appointment', error);
             this.toster.error('Error updating appointment')
+            this.isLoading=false;
           }
         }
         );
@@ -325,10 +333,12 @@ export class AddAppointmentComponent {
                 console.log(res)
               }
             });
+            this.isLoading=false;
         },
         error:(error) => {
           console.error('Error creating appointment', error);
           this.toster.error('Error creating appointment');
+          this.isLoading=false;
         }
       }
       );

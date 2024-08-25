@@ -16,16 +16,18 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ToastrService } from 'ngx-toastr';
 import { AddAppointmentDoctorComponent } from '../../../calendrier/add-appointment-doctor/add-appointment-doctor.component';
 import { log } from 'console';
-
+import  {LoadingSpinnerComponent } from "../../../../loading-spinner/loading-spinner.component";
 
 @Component({
     selector: 'app-t-all',
     standalone: true,
-    imports: [MatSnackBarModule,NgIf,CommonModule,DatePipe,MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, MatProgressBarModule],
+    imports: [LoadingSpinnerComponent,MatSnackBarModule,NgIf,CommonModule,DatePipe,MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, MatProgressBarModule],
     templateUrl: './t-all.component.html',
     styleUrl: './t-all.component.scss'
 })
 export class TAllComponent {
+
+    isLoading: boolean = true;
     ELEMENT_DATA : any[] =[] ;
     doctorID:any;
     displayedColumns: string[] = ['patient','appointmentDate','time', 'duration', 'status', 'type' , 'action'];
@@ -52,14 +54,12 @@ export class TAllComponent {
             next: (res: any) => {
                 this.ELEMENT_DATA = res;
                 this.dataSource.data = this.ELEMENT_DATA;
-                console.log(res);
-            },
-            complete: () => {
-                console.log("complete");
                 this.cdr.detectChanges();
+                this.isLoading = false;
             },
             error: (err) => {
                 console.error('Erreur:', err);
+                this.isLoading = false;
             }
         });
     }
@@ -79,10 +79,12 @@ export class TAllComponent {
             complete: () => {
                 this.toster.success("Deleted with success")
                 this.cdr.detectChanges();
+                this.isLoading = false;
             },
             error: (err) => {
                 this.toster.error("Something went wrong");
                 console.error('Erreur:', err);
+                this.isLoading = false;
             }
         });
     }

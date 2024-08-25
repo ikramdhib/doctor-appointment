@@ -1,32 +1,22 @@
 import { ChangeDetectorRef, Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { DoctorServesService } from '../doctorServes/doctor-serves.service';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatButtonModule } from '@angular/material/button';
-import { MatStepperModule } from '@angular/material/stepper';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatRadioModule } from '@angular/material/radio';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NotificationService } from '../../common/header/notificationServices/notification.service';
 import { ToastrService } from 'ngx-toastr';
 import { AddAppointmentDoctorComponent } from '../calendrier/add-appointment-doctor/add-appointment-doctor.component'
-
+import  {LoadingSpinnerComponent } from "../../loading-spinner/loading-spinner.component";
 
 @Component({
   selector: 'app-appointmnet-detail',
   standalone: true,
-  imports: [MatIconModule,MatChipsModule,MatMenuModule,MatCardModule,CommonModule,
+  imports: [LoadingSpinnerComponent,MatIconModule,MatChipsModule,MatMenuModule,MatCardModule,CommonModule,
     MatNativeDateModule,MatButtonModule,
     MatDialogModule],
   templateUrl: './appointmnet-detail.component.html',
@@ -36,6 +26,8 @@ export class AppointmnetDetailComponent {
 
   appointment: any;
   doctorID:any;
+  
+  isLoading: boolean = true;
 
   constructor(
     public dialogRef: MatDialogRef<AppointmnetDetailComponent>,
@@ -54,6 +46,7 @@ export class AppointmnetDetailComponent {
         this.doctorID = localStorage.getItem('userID');
         console.log('doctor id', this.doctorID);
       }
+      this.isLoading = false;
       
     }
 
@@ -76,36 +69,51 @@ export class AppointmnetDetailComponent {
     this.dialogRef.close();
   }
   updateAppointmentStatus(appointmentID:any , appointmentStatus:any){
+ 
     this.closeDialog()
-    this.doctorService.updateAppointmentStatus(appointmentID,appointmentStatus).subscribe({
-        next: (res: any) => {
-            if(appointmentStatus=='CANCLED'){
-                const notification = {
-                    senderId: this.doctorID,
-                    recipientId:res.patient._id,
-                    appointmentId:appointmentID,
-                    message: "Your appointment is cancel by your doctor , please take another appointment or contact your doctor",
-                    type:"CANCELED"
-                }
-                console.log(notification,'"""""');
-                
-                this.notificationService.sendNotification(notification).subscribe({
-                    next:(res:any)=>{
-                        console.log("success");
-                    }
-                });
-            }
-        },
-        complete: () => {
-            this.toster.success('Changed with success');
-            this.cdr.detectChanges();
-            this.closeDialog();
-        },
-        error: (err) => {
-            this.toster.error('Erreur when updating');
-            console.error('Erreur:', err);
-        }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '300px',
+      data: { message: 'Are you sure you want to delete this appointment?' }
     });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.doctorService.updateAppointmentStatus(appointmentID,appointmentStatus).subscribe({
+          next: (res: any) => {
+              if(appointmentStatus=='CANCLED'){
+                  const notification = {
+                      senderId: this.doctorID,
+                      recipientId:res.patient._id,
+                      appointmentId:appointmentID,
+                      message: "Your appointment is cancel by your doctor , please take another appointment or contact your doctor",
+                      type:"CANCELED"
+                  }
+                  console.log(notification,'"""""');
+                  
+                  this.notificationService.sendNotification(notification).subscribe({
+                      next:(res:any)=>{
+                          console.log("success");
+                      }
+                  });
+              }
+          },
+          complete: () => {
+              this.toster.success('Changed with success');
+              this.cdr.detectChanges();
+              this.closeDialog();
+          },
+          error: (err) => {
+              this.toster.error('Erreur when updating');
+              console.error('Erreur:', err);
+          }
+      });
+      } else {
+        console.log('Appointment not canceled');
+      }
+    });
+
+
+    
   }
 
   
@@ -142,4 +150,37 @@ if (appointment) {
         });
       }
 
+}
+
+@Component({
+  selector: 'app-confirmation-dialog',
+  standalone: true,
+  imports: [MatIconModule,MatChipsModule,MatMenuModule,MatCardModule,CommonModule,
+    MatNativeDateModule,MatButtonModule,
+    MatDialogModule],
+  template: `
+    <h1 mat-dialog-title>Confirmation</h1>
+    <div mat-dialog-content>
+      <p>{{ data.message }}</p>
+    </div>
+    <mat-dialog-actions align="end">
+      <button mat-button color="primary" (click)="onCancelClick()">Cancel</button>
+      <button mat-button color="warn" (click)="onConfirmClick()">OK</button>
+    </mat-dialog-actions>
+  `
+})
+export class ConfirmationDialogComponent {
+
+  constructor(
+    public dialogRef: MatDialogRef<ConfirmationDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {}
+
+  onConfirmClick(): void {
+    this.dialogRef.close(true);
+  }
+
+  onCancelClick(): void {
+    this.dialogRef.close(false);
+  }
 }

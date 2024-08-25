@@ -7,22 +7,24 @@
     flex-direction: column;
     justify-content: space-between;
     position: relative; /* Position relative for the card */
+    min-height: 200px; /* Ensures the card maintains a minimum height */
 }
 
 .corner-image {
     position: absolute;
-    width: 100px; /* Ajuste la largeur selon tes besoins */
-    height: auto; /* Maintien le ratio d'aspect */
+    width: 120px; /* Adjusted width for better visibility */
+    height: auto; /* Maintain aspect ratio */
 }
 
 .top-corner {
-    top: 10px; /* Ajuste la position du coin supérieur droit */
-    right: 10px; /* Ajuste la position du coin supérieur droit */
+    top: 10px; /* Position top corner */
+    right: 10px; /* Position top corner */
 }
 
 .bottom-corner {
-    bottom: 10px; /* Ajuste la position du coin inférieur gauche */
-    left: 10px; /* Ajuste la position du coin inférieur gauche */
+    bottom: 10px; /* Position bottom corner */
+    left: 10px; /* Position bottom corner */
+    z-index: 1; /* Ensure it stays above background content */
 }
 
 .appointment-info {
@@ -40,6 +42,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    min-height: 60px; /* Ensures space is reserved for buttons */
 }
 
 .btn {
@@ -49,18 +52,19 @@
     border-radius: 5px;
     cursor: pointer;
     margin-bottom: 10px;
-    background: linear-gradient(90deg, #1E90FF, #ADD8E6); /* Dégradé de bleu */
+    background: linear-gradient(90deg, #1E90FF, #ADD8E6); /* Blue gradient */
     transition: background 0.3s ease;
 }
 
 .btn:hover {
-    background: linear-gradient(90deg, #1C86EE, #87CEFA); /* Dégradé de bleu foncé au survol */
+    background: linear-gradient(90deg, #1C86EE, #87CEFA); /* Darker blue gradient on hover */
 }
 
 .btn:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.5);
 }
+
 .no-appointment-message {
     padding: 20px;
     text-align: center;
@@ -78,4 +82,3 @@
 .no-appointment-message p {
     color: #777;
 }
-

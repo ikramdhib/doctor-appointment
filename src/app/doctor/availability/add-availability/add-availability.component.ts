@@ -14,11 +14,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { AvailabilityService } from '../services/availability.service';
 import { ToastrService } from 'ngx-toastr';
-
+import  {LoadingSpinnerComponent } from "../../../loading-spinner/loading-spinner.component";
 @Component({
   selector: 'app-add-availability',
   standalone: true,
   imports: [
+    LoadingSpinnerComponent,
     MatSelectModule,
     MatButtonModule,
     ReactiveFormsModule,
@@ -35,6 +36,8 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./add-availability.component.scss']
 })
 export class AddAvailabilityComponent {
+  
+  isLoading: boolean = true;
   availabilityForm: FormGroup;
   doctorID: any;
   isEditMode = false;  // Flag to check if it's edit mode
@@ -67,6 +70,7 @@ export class AddAvailabilityComponent {
       this.isEditMode = true;
       this.setFormValues(data.timeSlots);
     }
+    
   }
 
   ngOnInit() {
@@ -74,6 +78,7 @@ export class AddAvailabilityComponent {
       this.doctorID = localStorage.getItem('userID');
       console.log('doctor id', this.doctorID);
   }
+  this.isLoading=false;
   }
 
   setFormValues(timeSlots: any[]): void {
@@ -105,7 +110,7 @@ export class AddAvailabilityComponent {
     if (this.availabilityForm.invalid) {
       return; // Ignore invalid form
     }
-
+    this.isLoading=true;
     const formValue = this.availabilityForm.value;
     const availabilityData = {
       date: this.data.date,
@@ -136,8 +141,10 @@ export class AddAvailabilityComponent {
         .subscribe(response => {
           this.toaster.success('Availability updated');
           this.dialogRef.close(response);
+          this.isLoading=false;
         }, error => {
           this.toaster.error('Error updating availability');
+          this.isLoading=false;
         });
     } else {
       // Create new availability
@@ -145,8 +152,10 @@ export class AddAvailabilityComponent {
         .subscribe(response => {
           this.toaster.success('Availability created');
           this.dialogRef.close(response);
+          this.isLoading=false;
         }, error => {
           this.toaster.error('Error creating availability');
+          this.isLoading=false;
         });
     }
   }

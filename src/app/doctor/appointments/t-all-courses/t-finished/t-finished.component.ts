@@ -12,16 +12,17 @@ import { DoctorServesService } from '../../../doctorServes/doctor-serves.service
 import { DialogComponent } from '../../../dialog/dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-
+import  {LoadingSpinnerComponent } from "../../../../loading-spinner/loading-spinner.component";
 import { ToastrService } from 'ngx-toastr';
 @Component({
     selector: 'app-t-finished',
     standalone: true,
-    imports: [NgIf,CommonModule, DatePipe,MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, MatProgressBarModule],
+    imports: [LoadingSpinnerComponent,NgIf,CommonModule, DatePipe,MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, MatProgressBarModule],
     templateUrl: './t-finished.component.html',
     styleUrl: './t-finished.component.scss'
 })
 export class TFinishedComponent {
+    isLoading: boolean = true;
     ELEMENT_DATA : any[] =[] ;
     status="FINISHED";
     doctorID:any;
@@ -47,14 +48,12 @@ export class TFinishedComponent {
             next: (res: any) => {
                 this.ELEMENT_DATA = res;
                 this.dataSource.data = this.ELEMENT_DATA;
-                console.log(res);
-            },
-            complete: () => {
-                console.log("complete");
                 this.cdr.detectChanges();
+                this.isLoading=false;
             },
             error: (err) => {
                 console.error('Erreur:', err);
+                this.isLoading=false;
             }
         });
     }
@@ -67,23 +66,24 @@ export class TFinishedComponent {
 
      //delet pointment
      deleteAppointmentwithID(appointmentID:any){
+        this.isLoading=true;
         console.log(appointmentID,"zzzzzzzzzzzzzzz")
         this.DoctorServes.deleteAppointmentWithID(appointmentID).subscribe({
             next: (res: any) => {
                 this.LoadAppointment(this.doctorID , this.status);
-            },
-            complete: () => {
-                this.toster.success('Deleted with success')
+                this.isLoading=false;
                 this.cdr.detectChanges();
             },
             error: (err) => {
                 this.toster.error('Something went wrong')
                 console.error('Erreur:', err);
+                this.isLoading=false;
             }
         });
     }
 
     deleteAppointment(appointmentID: any): void {
+        this.isLoading=true;
         const dialogRef = this.dialog.open(DialogComponent);
     
         dialogRef.afterClosed().subscribe(result => {

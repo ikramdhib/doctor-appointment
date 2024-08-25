@@ -15,11 +15,12 @@ import { ToastrService } from 'ngx-toastr';
 import {AddAppointmentComponent} from '../add-appointment/add-appointment.component';
 import { MatTooltipModule } from '@angular/material/tooltip'; // Import MatTooltipModule
 import { NotificationService } from '../../common/header/notificationServices/notification.service';
+import  {LoadingSpinnerComponent } from "../../loading-spinner/loading-spinner.component";
 
 @Component({
   selector: 'app-patient-appointments',
   standalone: true,
-    imports: [MatTooltipModule,DatePipe,MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, NgIf],
+    imports: [LoadingSpinnerComponent,MatTooltipModule,DatePipe,MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, NgIf],
   templateUrl: './patient-appointments.component.html',
   styleUrl: './patient-appointments.component.scss'
 })
@@ -28,6 +29,7 @@ export class PatientAppointmentsComponent {
   patientID :any;
   displayedColumns: string[] = [ 'doctor', 'appointmentDate', 'time', 'type', 'status','action'];
   dataSource = new MatTableDataSource<any>(this.ELEMENT_DATA);
+  isLoading: boolean = true;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -53,13 +55,13 @@ export class PatientAppointmentsComponent {
             this.ELEMENT_DATA = res;
             this.dataSource.data = this.ELEMENT_DATA;
             console.log(res);
-        },
-        complete: () => {
-            console.log("complete");
             this.cdr.detectChanges();
+            this.isLoading=false;
         },
         error: (err) => {
             console.error('Erreur:', err);
+            this.isLoading=false;
+
         }
     });
 }
@@ -82,6 +84,8 @@ openDoctorDetails(element: any): void {
 }
 
 updateAppointmentStatus(appointmentID:any){
+  this.isLoading=true;
+
   this.PatientServes.cancelAppointment(appointmentID).subscribe({
       next: (res: any) => {
           this.LoadAppointment(this.patientID);
@@ -98,14 +102,19 @@ updateAppointmentStatus(appointmentID:any){
             
           }
         });
+        this.cdr.detectChanges();
+        this.isLoading=false;
+
       },
       complete: () => {
           this.toster.success('Changed with success');
-          this.cdr.detectChanges();
+        
       },
       error: (err) => {
           this.toster.error('Erreur when updating');
           console.error('Erreur:', err);
+          this.isLoading=false;
+
       }
   });
 }

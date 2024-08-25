@@ -15,12 +15,13 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AvailabilityTableComponent} from '../availability-table/availability-table.component';
 import { AvailabilityService } from '../services/availability.service';
+import  {LoadingSpinnerComponent } from "../../../loading-spinner/loading-spinner.component";
 
 @Component({
   selector: 'app-availability-calender',
   templateUrl: './availability-calender.component.html',
   standalone: true,
-  imports: [AvailabilityTableComponent,MatButtonModule,MatMenuModule ,MatMenuModule,CommonModule, FullCalendarModule, MatCardModule, MatButtonModule, MatMenuModule],
+  imports: [LoadingSpinnerComponent,AvailabilityTableComponent,MatButtonModule,MatMenuModule ,MatMenuModule,CommonModule, FullCalendarModule, MatCardModule, MatButtonModule, MatMenuModule],
   styleUrls: ['./availability-calender.component.scss']
 })
 export class AvailabilityCalenderComponent implements OnInit {
@@ -31,7 +32,7 @@ export class AvailabilityCalenderComponent implements OnInit {
 
   doctorID: any;
   selectedEvent: any;
-
+  isLoading: boolean = true;
   isCalendarVisible: boolean = true; // Initial state to show calendar
   showContextMenu: boolean = false;
   contextMenuPosition = { x: '0px', y: '0px' };
@@ -150,8 +151,7 @@ export class AvailabilityCalenderComponent implements OnInit {
         const events = this.formatEvents(res.availabilities);
         console.log('Loaded events:', events); // Ajouter ceci
         this.calendarOptions.events = events;
-
-
+        this.isLoading=false;
       // Effacer les anciens événements
       const calendarApi = this.calendarComponent.getApi();
       calendarApi.removeAllEvents();

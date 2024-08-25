@@ -3,11 +3,12 @@ import { DoctorServesService } from '../doctorServes/doctor-serves.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { AddAppointmentComponent } from '../../patient/add-appointment/add-appointment.component';
+import  {LoadingSpinnerComponent } from "../../loading-spinner/loading-spinner.component";
 
 @Component({
   selector: 'app-doctor-cards',
   standalone: true,
-  imports: [CommonModule],
+  imports: [LoadingSpinnerComponent,CommonModule],
   templateUrl: './doctor-cards.component.html',
   styleUrl: './doctor-cards.component.scss'
 })
@@ -17,6 +18,7 @@ export class DoctorCardsComponent {
   @Input() description: string = 'Lorem ipsum dolor sit amet, consecte tur adipiscing elit aliquet iTristique id nibh lobortis nunc';
 
   constructor(private cdr: ChangeDetectorRef, private doctorService: DoctorServesService, public dialog: MatDialog) { }
+  isLoading: boolean = true;
   
   doctors: any[] = [];
 
@@ -28,9 +30,11 @@ export class DoctorCardsComponent {
     this.doctorService.getAllDoctors().subscribe(
       (data:any) => {
         this.doctors = data;
+        this.isLoading=false;
       },
       (error) => {
         console.error('Erreur lors de la récupération des docteurs:', error);
+        this.isLoading=false;
       }
     );
   }

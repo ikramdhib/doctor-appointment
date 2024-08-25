@@ -121,4 +121,33 @@ mat-chip.primary {
     text-align: right;
   }
   
+  .dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  .close-button {
+    color: #f44336; /* Red color for close button */
+  }
+  
+  .appointment-details, .doctor-info, .patient-info, .timestamps {
+    margin-bottom: 20px;
+  }
+  
+  h3 {
+    font-size: 18px;
+    color: #333;
+  }
+  
+  mat-dialog-content {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  
+  mat-dialog-actions {
+    padding: 10px;
+  }
   
