@@ -82,3 +82,22 @@
 .no-appointment-message p {
     color: #777;
 }
+.appointment-container-single {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .appointment-container-multiple {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+  }
+  
+  .appointment-card {
+    margin-bottom: 20px;
+  }
+  
+  .appointment-card.col-5 {
+    margin-right: 10px;
+  }
+  

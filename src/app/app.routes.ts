@@ -31,6 +31,7 @@ import {AvailabilityCalenderComponent} from './doctor/availability/availability-
 import {AvailabilityTableComponent} from './doctor/availability/availability-table/availability-table.component';
 import {NotificationComponent} from './common/notification/notification.component';
 import {DoctorCardsComponent} from './doctor/doctor-cards/doctor-cards.component';
+import { DoctorDashboardComponent } from './doctor/doctor-dashboard/doctor-dashboard.component';
 
 export const routes: Routes = [
     {path: '', component: LandingPageComponent},
@@ -64,6 +65,7 @@ export const routes: Routes = [
 //doctor routes
    {path:'doctor' , component:DoctorComponent, canActivate: [authGuard],data: { role: ['DOCTOR']} ,
     children:[
+        {path:'dashboard',component:DoctorDashboardComponent},
         {path:'appointments',component:AppointmentsComponent},
         {path:'calender',component:CalendrierComponent},
         {path:'availability', component:AvailabilityComponent , 
@@ -77,7 +79,7 @@ export const routes: Routes = [
    },
 
    //Patient routes 
-   {path:'patient', component:PatientComponent , canActivate: [authGuard],data: { role: ['PATIENT']} ,
+   {path:'patient', component:PatientComponent  ,
     children:[
         {path:'appointments',component:PatientAppointmentsComponent},
     ]

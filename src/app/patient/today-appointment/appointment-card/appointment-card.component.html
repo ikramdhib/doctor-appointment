@@ -1,34 +1,43 @@
-<!-- Display if there is an appointment -->
-<div *ngIf="appointment; else noAppointment" class="appointment-card bg-white col-12 position-relative">
-    <img src="assets/card-img-3.png" alt="Top Corner Image" class="corner-image top-corner">
-    <img src="assets/card-img-4.png" alt="Bottom Corner Image" class="corner-image bottom-corner">
-    
-    <h5 class="fw-medium">Your appointment is today!</h5>
-    
-    <div class="appointment-info">
-      <p class="doctor-name">Dr. {{ appointment.doctor.firstname }} {{ appointment.doctor.lastname }}</p>
-      <p class="appointment-time">Time: {{ appointment.dateAppointment | date: 'shortTime' }}</p>
-      <p class="appointment-date">Date: {{ appointment.dateAppointment | date: 'MMMM d, y' }}</p>
-    </div>
-    
-    <div class="button-container">
-        <p *ngIf="!buttonEnabled && appointment.type=='ONLINE'" class="time-remaining">
-            Meeting starts in: {{ timeRemaining }}
-          </p>
-      <button class="btn join-button" [disabled]="!buttonEnabled" *ngIf="appointment.type=='ONLINE'">
-        Join
-      </button>
-      <button class="btn reschedule-button" (click)="openAppointmentDialog(appointment,appointment.doctor._id)">Reschedule</button>
-    </div>
-  </div>
-  
-  <!-- Template for no appointment -->
-  <ng-template #noAppointment>
-    <div class="no-appointment-message bg-white col-12 position-relative">
-      <h5 class="fw-medium">
-        You have no appointments today.
-      </h5>
-      <p>Please check back later or schedule a new appointment.</p>
-    </div>
-  </ng-template>
-  
+<!-- Display if there are upcoming appointments -->
+<div *ngIf="upcomingAppointments && upcomingAppointments.length > 0; else noAppointment" 
+  [ngClass]="{'appointment-container-single': upcomingAppointments.length === 1, 'appointment-container-multiple': upcomingAppointments.length > 1}">
+
+<div *ngFor="let appointment of upcomingAppointments" 
+    [ngClass]="{'col-12': upcomingAppointments.length === 1, 'col-5': upcomingAppointments.length > 1}" 
+    class="appointment-card bg-white position-relative">
+
+ <img src="assets/card-img-3.png" alt="Top Corner Image" class="corner-image top-corner">
+ <img src="assets/card-img-4.png" alt="Bottom Corner Image" class="corner-image bottom-corner">
+
+ <h5 class="fw-medium">Your appointment is today!</h5>
+
+ <div class="appointment-info">
+   <p class="doctor-name">Dr. {{ appointment.doctor.firstname }} {{ appointment.doctor.lastname }}</p>
+   <p class="appointment-time">Time: {{ appointment.dateAppointment | date: 'shortTime' }}</p>
+   <p class="appointment-date">Date: {{ appointment.dateAppointment | date: 'MMMM d, y' }}</p>
+ </div>
+
+ <div class="button-container">
+   <p *ngIf="!buttonEnabled && appointment.type=='ONLINE'" class="time-remaining">
+     Meeting starts in: {{ timeRemaining }}
+   </p>
+   <button class="btn join-button" (click)="goToSharedRoom(appointment._id)" 
+           [disabled]="!buttonEnabled" *ngIf="appointment.type=='ONLINE'">
+     Join
+   </button>
+   <button class="btn reschedule-button" 
+           (click)="openAppointmentDialog(appointment, appointment.doctor._id)">Reschedule</button>
+ </div>
+</div>
+
+</div>
+
+<!-- Template for no appointment -->
+<ng-template #noAppointment>
+<div class="no-appointment-message bg-white col-12 position-relative">
+ <h5 class="fw-medium">
+   You have no upcoming appointments.
+ </h5>
+ <p>Please check back later or schedule a new appointment.</p>
+</div>
+</ng-template>

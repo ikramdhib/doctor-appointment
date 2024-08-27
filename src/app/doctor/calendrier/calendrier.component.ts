@@ -84,12 +84,15 @@ export class CalendrierComponent {
         textColor: '#ffffff',
         editable: this.isEventEditable(appointment.status),
       }));
-      this.cdr.detectChanges();
-        this.calendarComponent.getApi().refetchEvents();
-        this.isLoading=false;
+      this.isLoading = false;
+      this.cdr.markForCheck();
+  
+      if (this.calendarComponent) {
+        const calendarApi = this.calendarComponent.getApi();
+        calendarApi.refetchEvents(); // Rafraîchir les événements
+      }
     });
   }
-
   openAppointmentDetails(event: any): void {
  
      this.doctorService.getAppointmentDetails(event.event.id).subscribe(
@@ -190,6 +193,9 @@ export class CalendrierComponent {
       calendarApi.addEvent(event);
       // Rafraîchir le calendrier pour refléter les changements
       calendarApi.refetchEvents();
+      this.loadAppointments(this.doctorID);
+      this.cdr.detectChanges();
+
     }
   }
 
@@ -205,7 +211,8 @@ export class CalendrierComponent {
   this.doctorService.changeAppointmentDate(appointmentID, newDate).subscribe(
     (response) => {
       console.log('Appointment date updated successfully:', response);
-      
+      this.loadAppointments(this.doctorID);
+      this.cdr.detectChanges();
     this.isLoading = false;
     },
     (error) => {

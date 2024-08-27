@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { NgIf } from '@angular/common';
+import { Router } from '@angular/router';
 import {
     ChartComponent,
     ApexNonAxisChartSeries,
@@ -10,8 +11,9 @@ import {
 } from "ng-apexcharts";
 import { PatientService } from '../../serves/patient.service';
 import { MatDialog } from '@angular/material/dialog';
-import{AddAppointmentComponent} from '../../add-appointment/add-appointment.component';
+import { AddAppointmentComponent } from '../../add-appointment/add-appointment.component';
 import { interval } from 'rxjs';
+import { CommonModule } from '@angular/common';
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
   chart: ApexChart;
@@ -23,52 +25,70 @@ export type ChartOptions = {
 @Component({
   selector: 'app-appointment-card',
   standalone: true,
-    imports: [NgApexchartsModule,DatePipe,NgIf],
+  imports: [CommonModule,NgApexchartsModule, DatePipe, NgIf],
   templateUrl: './appointment-card.component.html',
   styleUrl: './appointment-card.component.scss'
 })
 export class AppointmentCardComponent {
   @ViewChild("chart") chart: ChartComponent;
-  
-  patientID: any;
-  appointment: any;
+
+  appointments: any[] = [];
+  upcomingAppointments: any[] = []; // To store filtered appointments
   buttonEnabled: boolean = false;
   timeRemaining: string = '';
 
-  constructor(public dialog: MatDialog, public PatientServes: PatientService) {}
+  constructor(public dialog: MatDialog, 
+              private router: Router, 
+              public PatientServes: PatientService) {}
 
   ngOnInit(): void {
     if (localStorage.hasOwnProperty('userID')) {
-      this.patientID = localStorage.getItem('userID');
+      const patientID = localStorage.getItem('userID');
+      this.PatientServes.getTodayAppointments(patientID).subscribe((appointments: any[]) => {
+        this.appointments = appointments;
+        this.filterUpcomingAppointments();
+        if (this.upcomingAppointments.length > 0) {
+          this.checkJoinButton();
+        }
+      });
     }
+  }
 
-    this.PatientServes.getTodayAppointments(this.patientID).subscribe((appointments: any[]) => {
-      if (appointments.length > 0) {
-        this.appointment = appointments[0]; // Prenez le premier rendez-vous
-        this.checkJoinButton();
-      }
+  // Filter appointments to only show upcoming ones
+  filterUpcomingAppointments(): void {
+    const currentTime = new Date();
+    this.upcomingAppointments = this.appointments.filter(appointment => {
+      const appointmentTime = new Date(appointment.dateAppointment);
+      return appointmentTime >= currentTime;
     });
   }
 
   checkJoinButton(): void {
-    if (this.appointment && this.appointment.type === 'ONLINE') {
-      const appointmentTime = new Date(this.appointment.dateAppointment);
-      interval(1000).subscribe(() => {
-        const currentTime = new Date();
-        const timeDifference = appointmentTime.getTime() - currentTime.getTime();
-        
-        if (timeDifference <= 15 * 60 * 1000 && timeDifference > 0) {
-          this.buttonEnabled = true;
-          this.timeRemaining = this.formatTime(timeDifference);
-        } else if (timeDifference > 0) {
-          this.buttonEnabled = false;
-          this.timeRemaining = this.formatTime(timeDifference);
-        } else {
-          this.buttonEnabled = false;
-          this.timeRemaining = 'Meeting started or ended';
-        }
-      });
-    }
+    this.upcomingAppointments.forEach(appointment => {
+      if (appointment.type === 'ONLINE') {
+        const appointmentTime = new Date(appointment.dateAppointment);
+        interval(1000).subscribe(() => {
+          const currentTime = new Date();
+          const timeDifference = appointmentTime.getTime() - currentTime.getTime();
+
+          if (timeDifference <= 15 * 60 * 1000 && timeDifference > 0) {
+            this.buttonEnabled = true;
+            this.timeRemaining = this.formatTime(timeDifference);
+          } else if (timeDifference > 0) {
+            this.buttonEnabled = false;
+            this.timeRemaining = this.formatTime(timeDifference);
+          } else {
+            this.buttonEnabled = false;
+            this.timeRemaining = 'Meeting started or ended';
+          }
+        });
+      }
+    });
+  }
+
+  goToSharedRoom(appointmentId: string): void {
+    const sharedRoomLink = `https://meet.jit.si/Appointment${appointmentId}`;
+    window.open(sharedRoomLink, "_blank");
   }
 
   formatTime(timeDifference: number): string {
@@ -77,7 +97,7 @@ export class AppointmentCardComponent {
     return `${minutes} min ${seconds} sec`;
   }
 
-  openAppointmentDialog(appointment: any = null, doctorID :any = null): void {
+  openAppointmentDialog(appointment: any = null, doctorID: any = null): void {
     let appointmentTime: string | null = null;
     let appointmentDate: string | null = null;
 
@@ -87,9 +107,6 @@ export class AppointmentCardComponent {
       appointmentTime = dateTime.toTimeString().split(' ')[0].substring(0, 5);
     }
 
-    console.log(doctorID);
-    
-
     const dialogRef = this.dialog.open(AddAppointmentComponent, {
       width: '500px',
       data: appointment ? {
@@ -98,7 +115,7 @@ export class AppointmentCardComponent {
         appointmentDate: appointmentDate,
         appointmentMode: appointment.type,
         appointmentTime: appointmentTime,
-        doctorID:doctorID
+        doctorID: doctorID
       } : {
         isUpdateMode: false
       }

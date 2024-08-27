@@ -226,6 +226,7 @@ addAppointment(): void {
         formValue.mode,
       ).subscribe({
         next: (res: any) => {
+          this.isLoading=false;
           this.toster.success('Appointment updated successfully');
           const notification = {
             senderId: this.doctorID,
@@ -236,7 +237,6 @@ addAppointment(): void {
           };
           this.notificationService.sendNotification(notification).subscribe();
           this.dialogRef.close(res);
-          this.isLoading=false;
         },
       });
     } else {
@@ -251,6 +251,7 @@ addAppointment(): void {
         formValue.email
       ).subscribe({
         next: (res: any) => {
+          this.isLoading=false;
           this.toster.success('Appointment added successfully');
           const notification = {
             senderId: this.doctorID,
@@ -261,7 +262,6 @@ addAppointment(): void {
           };
           this.notificationService.sendNotification(notification).subscribe();
           this.dialogRef.close(res);
-          this.isLoading=false;
         },
         error: (err) => {
           this.toster.error("Error scheduling appointment");
@@ -271,6 +271,7 @@ addAppointment(): void {
     }
   } else {
     console.log('Form is invalid.');
+    this.isLoading = false; 
   }
 }
 }
