@@ -47,7 +47,9 @@ export class DoctorServesService {
   getAppointmentDetails(id){
     return this.http.get(`${this.API_RL}appointment/appointmentDetails/${id}`);
   }
-
+getbarcharappointment(period:any, doctor:any){
+  return this.http.get<any[]>(`${this.API_RL}appointment/bar-Chart/${doctor}?period=${period}`);
+}
   
 
 }

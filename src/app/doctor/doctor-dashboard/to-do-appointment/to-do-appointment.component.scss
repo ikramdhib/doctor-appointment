@@ -33,7 +33,7 @@
   
         .btn {
           &.join-button {
-            background-color: #007bff;
+            background: linear-gradient(90deg, #1E90FF, #ADD8E6);;
             color: #fff;
             border: none;
             padding: 8px 16px;
@@ -46,14 +46,7 @@
             }
           }
   
-          &.reschedule-button {
-            background: linear-gradient(90deg, #1E90FF, #ADD8E6);;
-            color: #fff;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-          }
+         
         }
       }
     }
@@ -69,4 +62,21 @@
       }
     }
   }
+
+
+  
+  .scrollbar-container {
+    overflow-y: auto;
+    max-height: 400px; /* Ajustez cette hauteur selon vos besoins */
+    border-right: 1px solid #ddd; /* Ligne de séparation à droite */
+    padding-right: 1rem;
+  }
+  
+  .appointment-list {
+    padding: 1rem;
+  }
+  
+  
+  
+  
   
