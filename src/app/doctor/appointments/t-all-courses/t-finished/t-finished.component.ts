@@ -14,15 +14,23 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import  {LoadingSpinnerComponent } from "../../../../loading-spinner/loading-spinner.component";
 import { ToastrService } from 'ngx-toastr';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatNativeDateModule } from '@angular/material/core';
 @Component({
     selector: 'app-t-finished',
     standalone: true,
-    imports: [LoadingSpinnerComponent,NgIf,CommonModule, DatePipe,MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, MatProgressBarModule],
+    imports: [MatDatepickerModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatNativeDateModule,LoadingSpinnerComponent,NgIf,CommonModule, DatePipe,MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, MatProgressBarModule],
     templateUrl: './t-finished.component.html',
     styleUrl: './t-finished.component.scss'
 })
 export class TFinishedComponent {
     isLoading: boolean = true;
+    filteredData : any[] = [] ;
     ELEMENT_DATA : any[] =[] ;
     status="FINISHED";
     doctorID:any;
@@ -46,6 +54,7 @@ export class TFinishedComponent {
     LoadAppointment(doctorID: string , status :string) {
         this.DoctorServes.getAllAppointmentswithstatus(doctorID,status).subscribe({
             next: (res: any) => {
+                this.filteredData = res;
                 this.ELEMENT_DATA = res;
                 this.dataSource.data = this.ELEMENT_DATA;
                 this.cdr.detectChanges();
@@ -92,5 +101,26 @@ export class TFinishedComponent {
           }
         });
       }
+
+      filterByDate(selectedDate: Date) {
+        if (!selectedDate) {
+            // Si aucune date n'est sélectionnée, afficher toutes les données
+            this.dataSource.data = this.ELEMENT_DATA;
+        } else {
+            // Récupération des parties de la date locale sans conversion à UTC
+            const year = selectedDate.getFullYear();
+            const month = String(selectedDate.getMonth() + 1).padStart(2, '0'); // Les mois commencent à 0, donc ajouter +1
+            const day = String(selectedDate.getDate()).padStart(2, '0');
+    
+            // Construire la chaîne de caractères au format 'YYYY-MM-DD'
+            const selectedDateString = `${year}-${month}-${day}`;
+    
+            // Filtrer les données
+            this.dataSource.data = this.ELEMENT_DATA.filter((appointment: any) =>
+                appointment.dateAppointment.startsWith(selectedDateString)
+            );
+        }
+        this.cdr.detectChanges();
+    }
 }
 

@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { interval } from 'rxjs';
 import { PatientService } from '../../../patient/serves/patient.service';
 import { CommonModule } from '@angular/common';
+import { DoctorServesService } from '../../doctorServes/doctor-serves.service';
 @Component({
   selector: 'app-to-do-appointment',
   standalone: true,
@@ -15,12 +16,12 @@ export class ToDoAppointmentComponent {
   buttonEnabledMap: { [appointmentId: string]: boolean } = {};
   timeRemainingMap: { [appointmentId: string]: string } = {};
 
-  constructor(public dialog: MatDialog, private PatientService: PatientService) {}
+  constructor(public dialog: MatDialog, private DoctorService: DoctorServesService) {}
 
   ngOnInit(): void {
     if (localStorage.hasOwnProperty('userID')) {
       const doctorID = localStorage.getItem('userID');
-      this.PatientService.getTodayAppointments(doctorID).subscribe((appointments: any[]) => {
+      this.DoctorService.getTodayAppointments(doctorID).subscribe((appointments: any[]) => {
         this.todayAppointments = appointments;
         this.checkJoinButton();
       });

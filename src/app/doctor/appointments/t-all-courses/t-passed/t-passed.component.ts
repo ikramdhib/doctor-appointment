@@ -14,16 +14,26 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DialogComponent } from '../../../dialog/dialog.component';
 import { ToastrService } from 'ngx-toastr';
 import { AddAppointmentDoctorComponent } from '../../../calendrier/add-appointment-doctor/add-appointment-doctor.component';
+import  {LoadingSpinnerComponent } from "../../../../loading-spinner/loading-spinner.component";
 
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatNativeDateModule } from '@angular/material/core';
 
 @Component({
     selector: 'app-t-passed',
     standalone: true,
-    imports: [NgIf,CommonModule, DatePipe,MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, MatProgressBarModule],
+    imports: [MatDatepickerModule,
+      MatFormFieldModule,
+      MatInputModule,
+      MatNativeDateModule,LoadingSpinnerComponent,NgIf,CommonModule, DatePipe,MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, MatProgressBarModule],
     templateUrl: './t-passed.component.html',
     styleUrl: './t-passed.component.scss'
 })
 export class TPassedComponent {
+  isLoading: boolean = true;
+  filteredData : any[] = [] ;
 
     ELEMENT_DATA : any[] =[] ;
     status="PLANIFIED";
@@ -48,16 +58,15 @@ export class TPassedComponent {
     LoadAppointment(doctorID: string , status :string) {
         this.DoctorServes.getAllAppointmentswithstatus(doctorID,status).subscribe({
             next: (res: any) => {
+                this.filteredData = res;
                 this.ELEMENT_DATA = res;
                 this.dataSource.data = this.ELEMENT_DATA;
-                console.log(res);
-            },
-            complete: () => {
-                console.log("complete");
+                this.isLoading=false;
                 this.cdr.detectChanges();
             },
             error: (err) => {
                 console.error('Erreur:', err);
+                this.isLoading=false;
             }
         });
     }
@@ -70,17 +79,16 @@ export class TPassedComponent {
 
     //delet pointment
     deleteAppointmentwithID(appointmentID:any){
-        console.log(appointmentID,"zzzzzzzzzzzzzzz")
+      this.isLoading=true;
         this.DoctorServes.deleteAppointmentWithID(appointmentID).subscribe({
             next: (res: any) => {
                 this.LoadAppointment(this.doctorID , this.status);
-            },
-            complete: () => {
-                this.toster.success('Deleted with success');
+                this.isLoading=false;
                 this.cdr.detectChanges();
             },
             error: (err) => {
                 this.toster.error('Something went wrong');
+                this.isLoading=false;
                 console.error('Erreur:', err);
             }
         });
@@ -126,5 +134,24 @@ export class TPassedComponent {
               }
             });
           }
-    
+          filterByDate(selectedDate: Date) {
+            if (!selectedDate) {
+                // Si aucune date n'est sélectionnée, afficher toutes les données
+                this.dataSource.data = this.ELEMENT_DATA;
+            } else {
+                // Récupération des parties de la date locale sans conversion à UTC
+                const year = selectedDate.getFullYear();
+                const month = String(selectedDate.getMonth() + 1).padStart(2, '0'); // Les mois commencent à 0, donc ajouter +1
+                const day = String(selectedDate.getDate()).padStart(2, '0');
+        
+                // Construire la chaîne de caractères au format 'YYYY-MM-DD'
+                const selectedDateString = `${year}-${month}-${day}`;
+        
+                // Filtrer les données
+                this.dataSource.data = this.ELEMENT_DATA.filter((appointment: any) =>
+                    appointment.dateAppointment.startsWith(selectedDateString)
+                );
+            }
+            this.cdr.detectChanges();
+        }
 }

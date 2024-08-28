@@ -11,6 +11,14 @@
         </mat-card-title>
     </mat-card-header>
     <mat-card-content>
+        <div class="filter-container">
+            <mat-form-field appearance="fill">
+              <mat-label>Filter by Date</mat-label>
+              <input matInput [matDatepicker]="picker" (dateChange)="filterByDate($event.value)">
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </div>
         <div class="recent-orders-table">
             <div class="table-responsive">
                 <table mat-table [dataSource]="dataSource" *ngIf="dataSource && dataSource.data.length > 0">

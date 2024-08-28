@@ -16,12 +16,19 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ToastrService } from 'ngx-toastr';
 import { AddAppointmentDoctorComponent } from '../../../calendrier/add-appointment-doctor/add-appointment-doctor.component';
 import { log } from 'console';
+import { MatNativeDateModule } from '@angular/material/core';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import  {LoadingSpinnerComponent } from "../../../../loading-spinner/loading-spinner.component";
+import { MatInputModule } from '@angular/material/input';
+import { FormBuilder, FormGroup, Validators ,ReactiveFormsModule} from '@angular/forms';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 
 @Component({
     selector: 'app-t-all',
     standalone: true,
-    imports: [LoadingSpinnerComponent,MatSnackBarModule,NgIf,CommonModule,DatePipe,MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, MatProgressBarModule],
+    imports: [MatDatepickerModule,MatSelectModule,FormsModule,ReactiveFormsModule,MatInputModule,MatFormFieldModule,MatNativeDateModule,LoadingSpinnerComponent,MatSnackBarModule,NgIf,CommonModule,DatePipe,MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, MatProgressBarModule],
     templateUrl: './t-all.component.html',
     styleUrl: './t-all.component.scss'
 })
@@ -29,6 +36,7 @@ export class TAllComponent {
 
     isLoading: boolean = true;
     ELEMENT_DATA : any[] =[] ;
+    filteredData : any[] = [] ;
     doctorID:any;
     displayedColumns: string[] = ['patient','appointmentDate','time', 'duration', 'status', 'type' , 'action'];
     dataSource = new MatTableDataSource<any>(this.ELEMENT_DATA);
@@ -53,6 +61,7 @@ export class TAllComponent {
         this.DoctorServes.getAllAppointments(doctorID).subscribe({
             next: (res: any) => {
                 this.ELEMENT_DATA = res;
+                this.filteredData = res;
                 this.dataSource.data = this.ELEMENT_DATA;
                 this.cdr.detectChanges();
                 this.isLoading = false;
@@ -129,6 +138,27 @@ if (appointment) {
           }
         });
       }
+
+      filterByDate(selectedDate: Date) {
+        if (!selectedDate) {
+            // Si aucune date n'est sélectionnée, afficher toutes les données
+            this.dataSource.data = this.ELEMENT_DATA;
+        } else {
+            // Récupération des parties de la date locale sans conversion à UTC
+            const year = selectedDate.getFullYear();
+            const month = String(selectedDate.getMonth() + 1).padStart(2, '0'); // Les mois commencent à 0, donc ajouter +1
+            const day = String(selectedDate.getDate()).padStart(2, '0');
+    
+            // Construire la chaîne de caractères au format 'YYYY-MM-DD'
+            const selectedDateString = `${year}-${month}-${day}`;
+    
+            // Filtrer les données
+            this.dataSource.data = this.ELEMENT_DATA.filter((appointment: any) =>
+                appointment.dateAppointment.startsWith(selectedDateString)
+            );
+        }
+        this.cdr.detectChanges();
+    }
 
 }
 

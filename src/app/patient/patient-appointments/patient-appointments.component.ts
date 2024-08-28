@@ -16,16 +16,23 @@ import {AddAppointmentComponent} from '../add-appointment/add-appointment.compon
 import { MatTooltipModule } from '@angular/material/tooltip'; // Import MatTooltipModule
 import { NotificationService } from '../../common/header/notificationServices/notification.service';
 import  {LoadingSpinnerComponent } from "../../loading-spinner/loading-spinner.component";
-
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatNativeDateModule } from '@angular/material/core';
 @Component({
   selector: 'app-patient-appointments',
   standalone: true,
-    imports: [LoadingSpinnerComponent,MatTooltipModule,DatePipe,MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, NgIf],
+    imports: [MatDatepickerModule,
+      MatFormFieldModule,
+      MatInputModule,
+      MatNativeDateModule,LoadingSpinnerComponent,MatTooltipModule,DatePipe,MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, NgIf],
   templateUrl: './patient-appointments.component.html',
   styleUrl: './patient-appointments.component.scss'
 })
 export class PatientAppointmentsComponent {
-  ELEMENT_DATA : any[] =[] ;
+    filteredData : any[] = [] ;
+    ELEMENT_DATA : any[] =[] ;
   patientID :any;
   displayedColumns: string[] = [ 'doctor', 'appointmentDate', 'time', 'type', 'status','action'];
   dataSource = new MatTableDataSource<any>(this.ELEMENT_DATA);
@@ -52,7 +59,8 @@ export class PatientAppointmentsComponent {
   LoadAppointment(patientID: string) {
     this.PatientServes.getAllAppointments(patientID).subscribe({
         next: (res: any) => {
-            this.ELEMENT_DATA = res;
+                this.filteredData = res;
+                this.ELEMENT_DATA = res;
             this.dataSource.data = this.ELEMENT_DATA;
             console.log(res);
             this.cdr.detectChanges();
@@ -152,6 +160,25 @@ dialogRef.afterClosed().subscribe(result => {
 });
 
 }
+filterByDate(selectedDate: Date) {
+  if (!selectedDate) {
+      // Si aucune date n'est sélectionnée, afficher toutes les données
+      this.dataSource.data = this.ELEMENT_DATA;
+  } else {
+      // Récupération des parties de la date locale sans conversion à UTC
+      const year = selectedDate.getFullYear();
+      const month = String(selectedDate.getMonth() + 1).padStart(2, '0'); // Les mois commencent à 0, donc ajouter +1
+      const day = String(selectedDate.getDate()).padStart(2, '0');
 
+      // Construire la chaîne de caractères au format 'YYYY-MM-DD'
+      const selectedDateString = `${year}-${month}-${day}`;
+
+      // Filtrer les données
+      this.dataSource.data = this.ELEMENT_DATA.filter((appointment: any) =>
+          appointment.dateAppointment.startsWith(selectedDateString)
+      );
+  }
+  this.cdr.detectChanges();
+}
 }
 

@@ -15,14 +15,26 @@ import { DialogComponent } from '../../../dialog/dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip'; // Import MatTooltipModule
 import { ToastrService } from 'ngx-toastr';
 import { NotificationService } from '../../../../common/header/notificationServices/notification.service';
+import  {LoadingSpinnerComponent } from "../../../../loading-spinner/loading-spinner.component";
+
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatNativeDateModule } from '@angular/material/core';
+import { T } from '@angular/cdk/keycodes';
 @Component({
     selector: 'app-t-in-progress',
     standalone: true,
-    imports: [MatTooltipModule,NgIf,CommonModule, DatePipe,MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, MatProgressBarModule],
+    imports: [MatDatepickerModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatNativeDateModule,LoadingSpinnerComponent,MatTooltipModule,NgIf,CommonModule, DatePipe,MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, MatProgressBarModule],
     templateUrl: './t-in-progress.component.html',
     styleUrl: './t-in-progress.component.scss'
 })
 export class TInProgressComponent {
+    isLoading: boolean = true;
+    filteredData : any[] = [] ;
 
     ELEMENT_DATA : any[] =[] ;
     status="UNPLANNED";
@@ -49,16 +61,16 @@ export class TInProgressComponent {
     LoadAppointment(doctorID: string , status :string) {
         this.DoctorServes.getAllAppointmentswithstatus(doctorID,status).subscribe({
             next: (res: any) => {
+                this.filteredData = res;
                 this.ELEMENT_DATA = res;
                 this.dataSource.data = this.ELEMENT_DATA;
                 console.log(res);
-            },
-            complete: () => {
-                console.log("complete");
+                this.isLoading=false;
                 this.cdr.detectChanges();
             },
             error: (err) => {
                 console.error('Erreur:', err);
+                this.isLoading=false;
             }
         });
     }
@@ -72,6 +84,7 @@ export class TInProgressComponent {
 
       //confirm appointment 
       updateAppointmentStatus(appointmentID:any , appointmentStatus:any){
+        this.isLoading=true;
         this.DoctorServes.updateAppointmentStatus(appointmentID,appointmentStatus).subscribe({
             next: (res: any) => {
                 this.LoadAppointment(this.doctorID , this.status);
@@ -103,18 +116,36 @@ export class TInProgressComponent {
                             
                         }
                     });
+                    this.isLoading=false;
+                    this.cdr.detectChanges();
                 }
-            },
-            complete: () => {
-                this.toster.success('Changed with success');
-                this.cdr.detectChanges();
             },
             error: (err) => {
                 this.toster.error('Erreur when updating');
                 console.error('Erreur:', err);
+                this.isLoading=false;
             }
         });
       }
 
-
+      filterByDate(selectedDate: Date) {
+        if (!selectedDate) {
+            // Si aucune date n'est sélectionnée, afficher toutes les données
+            this.dataSource.data = this.ELEMENT_DATA;
+        } else {
+            // Récupération des parties de la date locale sans conversion à UTC
+            const year = selectedDate.getFullYear();
+            const month = String(selectedDate.getMonth() + 1).padStart(2, '0'); // Les mois commencent à 0, donc ajouter +1
+            const day = String(selectedDate.getDate()).padStart(2, '0');
+    
+            // Construire la chaîne de caractères au format 'YYYY-MM-DD'
+            const selectedDateString = `${year}-${month}-${day}`;
+    
+            // Filtrer les données
+            this.dataSource.data = this.ELEMENT_DATA.filter((appointment: any) =>
+                appointment.dateAppointment.startsWith(selectedDateString)
+            );
+        }
+        this.cdr.detectChanges();
+    }
 }
