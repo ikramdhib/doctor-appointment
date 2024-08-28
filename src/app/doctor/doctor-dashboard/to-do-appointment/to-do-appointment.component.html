@@ -7,7 +7,7 @@
     </h5>
     <div class="appointment-info">
       <p class="appointment-time">
-        <i class="ri-time-fill"></i> Time: {{ appointment.dateAppointment | date: 'shortTime' }}
+        <i class="ri-time-fill"></i> Time: {{ formatLocalTime(appointment.dateAppointment) }}
       </p>
       <p class="appointment-mode">
         <i [ngClass]="{

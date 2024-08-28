@@ -33,4 +33,7 @@ export class NotificationService {
   deleteAll(userId:any){
     return this.http.delete(`${this.API_RL}notification/deleteAllNotification/${userId}`);
   }
+  getRecentNotifications(userId:any){
+    return this.http.get(`${this.API_RL}notification/recent/${userId}`);
+  }
 }

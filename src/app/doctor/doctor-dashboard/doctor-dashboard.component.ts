@@ -7,10 +7,12 @@ import{WorkHoursChartComponent} from './work-hours-chart/work-hours-chart.compon
 import { MatTabsModule } from '@angular/material/tabs';
 import { ToDoAppointmentComponent } from './to-do-appointment/to-do-appointment.component';
 import { AppointmentBarChartComponentComponent } from'./appointment-bar-chart-component/appointment-bar-chart-component.component'
+import {TopPatientsComponent} from './top-patients/top-patients.component';
+import { RecentNotificationsComponent } from './recent-notifications/recent-notifications.component';
 @Component({
   selector: 'app-doctor-dashboard',
   standalone: true,
-  imports: [WorkHoursChartComponent,ToDoAppointmentComponent,MatCardModule,RouterLink,AppointmentBarChartComponentComponent],
+  imports: [RecentNotificationsComponent,TopPatientsComponent,WorkHoursChartComponent,ToDoAppointmentComponent,MatCardModule,RouterLink,AppointmentBarChartComponentComponent],
   templateUrl: './doctor-dashboard.component.html',
   styleUrl: './doctor-dashboard.component.scss'
 })

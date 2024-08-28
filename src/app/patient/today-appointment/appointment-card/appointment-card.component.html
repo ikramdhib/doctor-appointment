@@ -12,21 +12,27 @@
  <h5 class="fw-medium">Your appointment is today!</h5>
 
  <div class="appointment-info">
-   <p class="doctor-name">Dr. {{ appointment.doctor.firstname }} {{ appointment.doctor.lastname }}</p>
-   <p class="appointment-time">Time: {{ appointment.dateAppointment | date: 'shortTime' }}</p>
-   <p class="appointment-date">Date: {{ appointment.dateAppointment | date: 'MMMM d, y' }}</p>
+   <p class="doctor-name"><i class="ri-nurse-line"></i>Dr. {{ appointment.doctor.firstname }} {{ appointment.doctor.lastname }}</p>
+   <p class="appointment-time">  <i class="ri-time-fill"></i> Time: {{ formatLocalTime(appointment.dateAppointment) }}</p>
+   <p class="appointment-mode">
+    <i [ngClass]="{
+      'ri-video-on-fill': appointment.type === 'ONLINE',
+      'ri-building-4-fill': appointment.type === 'IN_PERSON'
+    }"></i>
+    Mode: {{ appointment.type === 'ONLINE' ? 'Online' : 'In-Person' }}
+  </p>
  </div>
 
  <div class="button-container">
    <p *ngIf="!buttonEnabled && appointment.type=='ONLINE'" class="time-remaining">
-     Meeting starts in: {{ timeRemaining }}
+    <i class="ri-hourglass-fill"></i> Meeting starts in: {{ timeRemaining }}
    </p>
    <button class="btn join-button" (click)="goToSharedRoom(appointment._id)" 
            [disabled]="!buttonEnabled" *ngIf="appointment.type=='ONLINE'">
-     Join
+           <i class="ri-logout-box-r-line"></i>  Join
    </button>
    <button class="btn reschedule-button" 
-           (click)="openAppointmentDialog(appointment, appointment.doctor._id)">Reschedule</button>
+           (click)="openAppointmentDialog(appointment, appointment.doctor._id)"><i class="ri-calendar-schedule-fill"></i> Reschedule</button>
  </div>
 </div>
 
@@ -36,7 +42,7 @@
 <ng-template #noAppointment>
 <div class="no-appointment-message bg-white col-12 position-relative">
  <h5 class="fw-medium">
-   You have no upcoming appointments.
+  <i class="ri-calendar-close-line"></i>   You have no upcoming appointments.
  </h5>
  <p>Please check back later or schedule a new appointment.</p>
 </div>

@@ -62,7 +62,13 @@ export class AppointmentCardComponent {
       return appointmentTime >= currentTime;
     });
   }
-
+  formatLocalTime(dateString: string): string {
+    let date = new Date(dateString);
+    // Correction manuelle du décalage (si nécessaire)
+    date.setHours(date.getHours() - 1);
+    
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  }
   checkJoinButton(): void {
     this.upcomingAppointments.forEach(appointment => {
       if (appointment.type === 'ONLINE') {

@@ -44,9 +44,4 @@ export class SocketService {
     this.socket.disconnect();
   }
 
-  // Méthode pour obtenir l'ID de l'utilisateur actuel
-  private getCurrentUserId(): string {
-    // Remplacez cela par la méthode correcte pour obtenir l'ID de l'utilisateur actuel dans votre application
-    return "USER_ID_FROM_AUTH_SERVICE";
-  }
 }

@@ -32,10 +32,21 @@ export class ToDoAppointmentComponent {
     this.todayAppointments.forEach(appointment => {
       if (appointment.type === 'ONLINE') {
         const appointmentTime = new Date(appointment.dateAppointment);
+  
+        // Vous pouvez obtenir l'heure locale sans le décalage de fuseau horaire :
+        const appointmentLocalTime = new Date(
+          appointmentTime.getUTCFullYear(),
+          appointmentTime.getUTCMonth(),
+          appointmentTime.getUTCDate(),
+          appointmentTime.getUTCHours(),
+          appointmentTime.getUTCMinutes(),
+          appointmentTime.getUTCSeconds()
+        );
+  
         interval(1000).subscribe(() => {
           const currentTime = new Date();
-          const timeDifference = appointmentTime.getTime() - currentTime.getTime();
-
+          const timeDifference = appointmentLocalTime.getTime() - currentTime.getTime();
+  
           if (timeDifference <= 15 * 60 * 1000 && timeDifference > 0) {
             this.buttonEnabledMap[appointment._id] = true;
             this.timeRemainingMap[appointment._id] = this.formatTime(timeDifference);
@@ -50,7 +61,14 @@ export class ToDoAppointmentComponent {
       }
     });
   }
-
+  
+  formatLocalTime(dateString: string): string {
+    let date = new Date(dateString);
+    // Correction manuelle du décalage (si nécessaire)
+    date.setHours(date.getHours() - 1);
+    
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  }
   goToSharedRoom(appointmentId: string): void {
     const sharedRoomLink = `https://meet.jit.si/Appointment${appointmentId}`;
     window.open(sharedRoomLink, "_blank");

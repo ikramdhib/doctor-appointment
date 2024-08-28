@@ -53,5 +53,8 @@ getbarcharappointment(period:any, doctor:any){
 getTodayAppointments(doctorID:any){
   return this.http.get(`${this.API_RL}appointment/todayAppointmentDoctor/${doctorID}`,this.httpOptions);
 }
+getTopPatients(doctorId: string){
+  return this.http.get<any[]>(`${this.API_RL}appointment/top-patients/${doctorId}`);
+}
 
 }

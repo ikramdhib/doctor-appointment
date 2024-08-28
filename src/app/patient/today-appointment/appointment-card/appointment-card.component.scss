@@ -54,6 +54,10 @@
     margin-bottom: 10px;
     background: linear-gradient(90deg, #1E90FF, #ADD8E6); /* Blue gradient */
     transition: background 0.3s ease;
+    &:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
 }
 
 .btn:hover {
