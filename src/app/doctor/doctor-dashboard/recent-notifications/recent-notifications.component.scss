@@ -1,15 +1,15 @@
-/* src/app/components/recent-notifications/recent-notifications.component.scss */
+
 .notifications-container {
     padding: 20px;
     background-color: #f9f9f9;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: auto; /* Ajustez selon vos besoins */
+    max-width: auto; 
   }
   
   .notifications-wrapper {
-    max-height: 300px; /* Hauteur maximale pour la zone de défilement */
-    overflow-y: auto; /* Activer le défilement vertical */
+    max-height: 300px; 
+    overflow-y: auto; 
   }
   
   .notifications-list {
