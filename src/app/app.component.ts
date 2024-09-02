@@ -8,13 +8,13 @@ import { ToggleService } from '../app/common/header/toggle.service';
 import { SidebarComponent } from './common/sidebar/sidebar.component';
 import { CommonModule, Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
 import { RouterOutlet, Router, NavigationCancel, NavigationEnd, RouterLink } from '@angular/router';
-import { LandingPageComponent } from './landing-page/landing-page.component';
+
 import { AuthService } from './Auth/services/auth.service';
 
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [RouterOutlet, CommonModule,LandingPageComponent, RouterLink, SidebarComponent, HeaderComponent, FooterComponent],
+    imports: [RouterOutlet, CommonModule, RouterLink, SidebarComponent, HeaderComponent, FooterComponent],
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss',
     providers: [
