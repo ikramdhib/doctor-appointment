@@ -62,7 +62,7 @@ This project is a Doctor Appointment Management System built with Angular 17 for
 
 ### Frontend 
 
-    ```bash
+    
       frontend/
       ├── src/
       │   ├── app/
