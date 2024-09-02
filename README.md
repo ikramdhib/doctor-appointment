@@ -83,6 +83,6 @@ Contributions are welcome! Please follow the guidelines in the CONTRIBUTING.md f
 For any inquiries or support, feel free to contact me:
 
 **Ikram Dhib**  
-Email: [dhibikram50@gmail.com]
-LinkedIn: [https://www.linkedin.com/in/dhib-ikram-3190051ab/]
-GitHub: [https://github.com/ikramdhib]
+- Email: [dhibikram50@gmail.com]
+- LinkedIn: [https://www.linkedin.com/in/dhib-ikram-3190051ab/]
+- GitHub: [https://github.com/ikramdhib]
