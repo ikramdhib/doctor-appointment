@@ -11,6 +11,7 @@ This project is a Doctor Appointment Management System built with Angular 17 for
 - [Running the Application](#running-the-application)
 - [Project Structure](#project-structure)
 - [Contributing](#contributing)
+- [Contact](#contact)
 
 ## Features
 
@@ -62,7 +63,6 @@ This project is a Doctor Appointment Management System built with Angular 17 for
 
 ### Frontend 
 
-    
       frontend/
       ├── src/
       │   ├── app/
@@ -78,4 +78,11 @@ This project is a Doctor Appointment Management System built with Angular 17 for
 
 Contributions are welcome! Please follow the guidelines in the CONTRIBUTING.md file.
 
-  
+## Contact
+
+For any inquiries or support, feel free to contact me:
+
+**Ikram Dhib**  
+Email: [dhibikram50@gmail.com]
+LinkedIn: [https://www.linkedin.com/in/dhib-ikram-3190051ab/]
+GitHub: [https://github.com/ikramdhib]
